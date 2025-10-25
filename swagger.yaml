@@ -1,0 +1,696 @@
+openapi: 3.0.3
+info:
+  title: Rentor MVP API
+  description: API для MVP платформы долгосрочной аренды жилья (Cookie-based аутентификация)
+  version: 1.0.0
+  contact:
+    name: Cringineers Team
+    email: dev@rentor.com
+
+servers:
+  - url: https://api.rentor.com/v1
+    description: Production server
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: integer
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        phone_number:
+          type: string
+          nullable: true
+        first_name:
+          type: string
+          maxLength: 100
+        surname:
+          type: string
+          maxLength: 100
+        patronymic:
+          type: string
+          maxLength: 100
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    UserProfileUpdate:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 100
+        surname:
+          type: string
+          maxLength: 100
+        patronymic:
+          type: string
+          maxLength: 100
+          nullable: true
+        phone_number:
+          type: string
+          nullable: true
+
+    AuthSendOtp:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+
+    AuthVerifyOtp:
+      type: object
+      required:
+        - email
+        - otp_code
+      properties:
+        email:
+          type: string
+          format: email
+        otp_code:
+          type: string
+          pattern: '^[0-9]{6}$'
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+
+    AdvertisementLite:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 255
+        price:
+          type: number
+          minimum: 0
+        type:
+          type: string
+          enum: [apartment, house, room]
+        rooms:
+          type: string
+          enum: [studio, 1, 2, 3, 4, 5, 6+]
+        city:
+          type: string
+          maxLength: 255
+        image_url:
+          type: string
+          format: uri
+          nullable: true
+          description: URL основного изображения
+
+    Advertisement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 10000
+        price:
+          type: number
+          minimum: 0
+        type:
+          type: string
+          enum: [apartment, house, room]
+        rooms:
+          type: string
+          enum: [studio, 1, 2, 3, 4, 5, 6+]
+        city:
+          type: string
+          maxLength: 255
+        address:
+          type: string
+          maxLength: 500
+        latitude:
+          type: number
+          format: float
+          nullable: true
+        longitude:
+          type: number
+          format: float
+          nullable: true
+        square:
+          type: number
+          format: float
+          nullable: true
+        image_urls:
+          type: array
+          items:
+            type: string
+            format: uri
+        landlord_name:
+          type: string
+          description: Имя арендодателя для отображения
+        landlord_email:
+          type: string
+          format: email
+          description: Email арендодателя для связи
+        landlord_phone:
+          type: string
+          nullable: true
+          description: Телефон арендодателя для связи
+        status:
+          type: string
+          enum: [active, paused]
+        created_at:
+          type: string
+          format: date-time
+
+    AdvertisementCreate:
+      type: object
+      required:
+        - title
+        - description
+        - price
+        - type
+        - rooms
+        - city
+        - address
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 10000
+        price:
+          type: number
+          minimum: 0
+        type:
+          type: string
+          enum: [apartment, house, room]
+        rooms:
+          type: string
+          enum: [studio, 1, 2, 3, 4, 5, 6+]
+        city:
+          type: string
+          maxLength: 255
+        address:
+          type: string
+          maxLength: 500
+        latitude:
+          type: number
+          format: float
+          nullable: true
+        longitude:
+          type: number
+          format: float
+          nullable: true
+        square:
+          type: number
+          format: float
+          nullable: true
+
+    AdvertisementUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 10000
+        price:
+          type: number
+          minimum: 0
+        type:
+          type: string
+          enum: [apartment, house, room]
+        rooms:
+          type: string
+          enum: [studio, 1, 2, 3, 4, 5, 6+]
+        city:
+          type: string
+          maxLength: 255
+        address:
+          type: string
+          maxLength: 500
+        latitude:
+          type: number
+          format: float
+          nullable: true
+        longitude:
+          type: number
+          format: float
+          nullable: true
+        square:
+          type: number
+          format: float
+          nullable: true
+        status:
+          type: string
+          enum: [active, paused]
+
+    AdvertisementListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdvertisementLite'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            total:
+              type: integer
+            total_pages:
+              type: integer
+
+    ImageUploadResponse:
+      type: object
+      properties:
+        image_url:
+          type: string
+          format: uri
+        image_id:
+          type: string
+          format: uuid
+
+    ImagesUploadResponse:
+      type: object
+      properties:
+        uploaded_images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageUploadResponse'
+        total_uploaded:
+          type: integer
+
+paths:
+  # Аутентификация
+  /auth/send-otp:
+    post:
+      summary: Отправить OTP код для входа
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthSendOtp'
+      responses:
+        '200':
+          description: OTP код отправлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Неверный формат email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/verify-otp:
+    post:
+      summary: Верифицировать OTP и войти в систему
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthVerifyOtp'
+      responses:
+        '200':
+          description: Успешный вход (установлена session cookie)
+          headers:
+            Set-Cookie:
+              description: Session cookie для аутентификации
+              schema:
+                type: string
+                example: session=abc123; Path=/; HttpOnly; Secure; SameSite=Strict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Неверный OTP код
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      summary: Выйти из системы
+      tags: [Authentication]
+      responses:
+        '200':
+          description: Успешный выход (cookie очищена)
+          headers:
+            Set-Cookie:
+              description: Очистка session cookie
+              schema:
+                type: string
+                example: session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Strict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  # Профиль пользователя
+  /user/profile:
+    get:
+      summary: Получить профиль текущего пользователя
+      tags: [User]
+      responses:
+        '200':
+          description: Профиль пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Обновить профиль пользователя
+      tags: [User]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdate'
+      responses:
+        '200':
+          description: Профиль успешно обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Не авторизован
+
+  # Объявления
+  /advertisements:
+    get:
+      summary: Получить список объявлений с фильтрацией
+      tags: [Advertisements]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+            minimum: 0
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+            minimum: 0
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [apartment, house, room]
+        - name: rooms
+          in: query
+          schema:
+            type: string
+            enum: [studio, 1, 2, 3, 4, 5, 6+]
+        - name: city
+          in: query
+          schema:
+            type: string
+        - name: keywords
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список объявлений
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvertisementListResponse'
+
+    post:
+      summary: Создать новое объявление
+      tags: [Advertisements]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvertisementCreate'
+      responses:
+        '201':
+          description: Объявление успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advertisement'
+        '400':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Не авторизован
+
+  /advertisements/{id}:
+    get:
+      summary: Получить детальную информацию об объявлении
+      tags: [Advertisements]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Детальная информация об объявлении
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advertisement'
+        '404':
+          description: Объявление не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Обновить объявление
+      tags: [Advertisements]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvertisementUpdate'
+      responses:
+        '200':
+          description: Объявление успешно обновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advertisement'
+        '400':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Не авторизован
+        '403':
+          description: Нет прав для редактирования этого объявления
+        '404':
+          description: Объявление не найдено
+
+    delete:
+      summary: Удалить объявление
+      tags: [Advertisements]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Объявление успешно удалено
+        '401':
+          description: Не авторизован
+        '403':
+          description: Нет прав для удаления этого объявления
+        '404':
+          description: Объявление не найдено
+
+  /advertisements/{id}/images:
+    post:
+      summary: Добавить изображения к объявлению
+      tags: [Advertisements]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Массив файлов изображений (JPG, PNG)
+      responses:
+        '200':
+          description: Изображения успешно добавлены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImagesUploadResponse'
+        '400':
+          description: Ошибка валидации файлов
+        '401':
+          description: Не авторизован
+        '403':
+          description: Нет прав для редактирования этого объявления
+        '404':
+          description: Объявление не найдено
+
+  /advertisements/{ad_id}/images/{image_id}:
+    delete:
+      summary: Удалить изображение из объявления
+      tags: [Advertisements]
+      parameters:
+        - name: ad_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: image_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Изображение успешно удалено
+        '401':
+          description: Не авторизован
+        '403':
+          description: Нет прав для редактирования этого объявления
+        '404':
+          description: Объявление или изображение не найдено
+
+  /advertisements/my:
+    get:
+      summary: Получить мои объявления
+      tags: [Advertisements]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        '200':
+          description: Список моих объявлений
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvertisementListResponse'
+        '401':
+          description: Не авторизован
+
+tags:
+  - name: Authentication
+    description: Аутентификация и авторизация
+  - name: User
+    description: Управление профилем пользователя
+  - name: Advertisements
+    description: Работа с объявлениями об аренде
