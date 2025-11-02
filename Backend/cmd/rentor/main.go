@@ -4,6 +4,7 @@ import (
 	"log"
 	"rentor/internal/config"
 	"rentor/internal/logger"
+	"rentor/internal/storage"
 )
 
 func main() {
@@ -28,7 +29,17 @@ func main() {
 		logger.Field("http_port", config.HTTPServer.Port),
 	)
 
-	// TODO: database: sqlite
+	// connect to database
+	db, err := storage.Connect(config.StoragePath)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
+
+	// migrate database
+	err = storage.RunMigrations(db, "./migrations", "up")
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
 
 	// TODO: router: chi, render
 	// TODO: run server
