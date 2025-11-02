@@ -29,6 +29,7 @@ func main() {
 	)
 
 	// TODO: database: sqlite
+
 	// TODO: router: chi, render
 	// TODO: run server
 }
