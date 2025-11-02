@@ -1,13 +1,13 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 button,
 a,
-[role="button"],
+[role='button'],
 label {
   cursor: pointer;
 }
 
-input:not([type="checkbox"]):not([type="radio"]),
+input:not([type='checkbox']):not([type='radio']),
 textarea {
   cursor: text;
 }
@@ -16,8 +16,8 @@ select {
   cursor: pointer;
 }
 
-input[type="checkbox"],
-input[type="radio"] {
+input[type='checkbox'],
+input[type='radio'] {
   cursor: pointer;
 }
 

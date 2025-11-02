@@ -1,7 +1,6 @@
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom'
 
 export const Advertisement = () => {
-  const { id } = useParams();
-  return <>Advertisement {id}</>;
-};
-
+  const { id } = useParams()
+  return <>Advertisement {id}</>
+}

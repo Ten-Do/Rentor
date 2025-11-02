@@ -1,37 +1,42 @@
-import { type ReactNode, useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react'
 
 interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  children: ReactNode;
-  className?: string;
+  isOpen: boolean
+  onClose: () => void
+  children: ReactNode
+  className?: string
 }
 
-export const Modal = ({ isOpen, onClose, children, className = '' }: ModalProps) => {
-  const modalRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
+export const Modal = ({
+  isOpen,
+  onClose,
+  children,
+  className = '',
+}: ModalProps) => {
+  const modalRef = useRef<HTMLDivElement>(null)
+  const overlayRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) return
 
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
+      if (e.key === 'Escape') onClose()
+    }
 
-    document.addEventListener('keydown', handleEscape);
-    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleEscape)
+    document.body.style.overflow = 'hidden'
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = '';
-    };
-  }, [isOpen, onClose]);
+      document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = ''
+    }
+  }, [isOpen, onClose])
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === overlayRef.current) onClose();
-  };
+    if (e.target === overlayRef.current) onClose()
+  }
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <div
@@ -67,6 +72,5 @@ export const Modal = ({ isOpen, onClose, children, className = '' }: ModalProps)
         {children}
       </div>
     </div>
-  );
-};
-
+  )
+}

@@ -1,0 +1,194 @@
+{
+  "/v1/advertisements": {
+    "data": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Современная квартира в центре города",
+        "price": 45000,
+        "type": "apartment",
+        "rooms": "2",
+        "city": "Москва",
+        "image_url": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "title": "Уютный дом с садом",
+        "price": 80000,
+        "type": "house",
+        "rooms": "4",
+        "city": "Санкт-Петербург",
+        "image_url": "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "title": "Комната в центре",
+        "price": 25000,
+        "type": "room",
+        "rooms": "1",
+        "city": "Москва",
+        "image_url": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440003",
+        "title": "Студия рядом с метро",
+        "price": 35000,
+        "type": "apartment",
+        "rooms": "studio",
+        "city": "Москва",
+        "image_url": "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440004",
+        "title": "Просторная 3-комнатная квартира",
+        "price": 65000,
+        "type": "apartment",
+        "rooms": "3",
+        "city": "Казань",
+        "image_url": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440005",
+        "title": "Загородный дом с участком",
+        "price": 95000,
+        "type": "house",
+        "rooms": "5",
+        "city": "Подмосковье",
+        "image_url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 6,
+      "total_pages": 1
+    }
+  },
+  "/v1/advertisements/550e8400-e29b-41d4-a716-446655440000": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "Современная квартира в центре города",
+    "description": "Просторная светлая квартира с ремонтом в центре Москвы. Рядом метро, магазины, парки. Идеально подходит для семьи или пары. В квартире есть вся необходимая мебель и техника. Готовы к заселению.",
+    "price": 45000,
+    "type": "apartment",
+    "rooms": "2",
+    "city": "Москва",
+    "address": "ул. Тверская, д. 15, кв. 42",
+    "latitude": 55.7558,
+    "longitude": 37.6173,
+    "square": 65.5,
+    "image_urls": [
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200",
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200",
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1200"
+    ],
+    "landlord_name": "Иван Петров",
+    "landlord_email": "ivan.petrov@example.com",
+    "landlord_phone": "+7 (999) 123-45-67",
+    "status": "active",
+    "created_at": "2024-01-15T10:30:00Z"
+  },
+  "/v1/advertisements/550e8400-e29b-41d4-a716-446655440001": {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "title": "Уютный дом с садом",
+    "description": "Частный дом с участком 10 соток в тихом районе Санкт-Петербурга. Дом двухэтажный, полностью меблирован. Есть гараж и баня. Отличное место для семьи с детьми.",
+    "price": 80000,
+    "type": "house",
+    "rooms": "4",
+    "city": "Санкт-Петербург",
+    "address": "ул. Ленина, д. 25",
+    "latitude": 59.9343,
+    "longitude": 30.3351,
+    "square": 120.0,
+    "image_urls": [
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1200",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200"
+    ],
+    "landlord_name": "Мария Иванова",
+    "landlord_email": "maria.ivanova@example.com",
+    "landlord_phone": "+7 (812) 234-56-78",
+    "status": "active",
+    "created_at": "2024-01-20T14:15:00Z"
+  },
+  "/v1/advertisements/550e8400-e29b-41d4-a716-446655440002": {
+    "id": "550e8400-e29b-41d4-a716-446655440002",
+    "title": "Комната в центре",
+    "description": "Уютная комната в просторной коммунальной квартире. Рядом метро, университет, кафе. Подходит для студентов или молодых специалистов. Кухня и санузел общие, оборудованы всем необходимым.",
+    "price": 25000,
+    "type": "room",
+    "rooms": "1",
+    "city": "Москва",
+    "address": "пр. Мира, д. 50, кв. 12",
+    "latitude": 55.7879,
+    "longitude": 37.6297,
+    "square": 18.0,
+    "image_urls": [
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200",
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1200"
+    ],
+    "landlord_name": "Алексей Смирнов",
+    "landlord_email": "alexey.smirnov@example.com",
+    "landlord_phone": "+7 (999) 345-67-89",
+    "status": "active",
+    "created_at": "2024-01-25T09:00:00Z"
+  },
+  "/v1/advertisements/550e8400-e29b-41d4-a716-446655440003": {
+    "id": "550e8400-e29b-41d4-a716-446655440003",
+    "title": "Студия рядом с метро",
+    "description": "Современная студия с мебелью и техникой. Отличное расположение - 5 минут до метро. Подходит для одного человека или пары. Есть балкон с видом на парк.",
+    "price": 35000,
+    "type": "apartment",
+    "rooms": "studio",
+    "city": "Москва",
+    "address": "ул. Арбат, д. 8, кв. 15",
+    "latitude": 55.7520,
+    "longitude": 37.5925,
+    "square": 32.0,
+    "image_urls": [
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1200",
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200"
+    ],
+    "landlord_name": "Ольга Козлова",
+    "landlord_email": "olga.kozlova@example.com",
+    "landlord_phone": "+7 (999) 456-78-90",
+    "status": "active",
+    "created_at": "2024-02-01T11:20:00Z"
+  },
+  "/v1/user/profile": {
+    "id": "660e8400-e29b-41d4-a716-446655440000",
+    "email": "user@example.com",
+    "phone_number": "+7 (999) 123-45-67",
+    "first_name": "Иван",
+    "surname": "Иванов",
+    "patronymic": "Петрович",
+    "created_at": "2024-01-01T12:00:00Z"
+  },
+  "/v1/advertisements/my": {
+    "data": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Современная квартира в центре города",
+        "price": 45000,
+        "type": "apartment",
+        "rooms": "2",
+        "city": "Москва",
+        "image_url": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440003",
+        "title": "Студия рядом с метро",
+        "price": 35000,
+        "type": "apartment",
+        "rooms": "studio",
+        "city": "Москва",
+        "image_url": "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 2,
+      "total_pages": 1
+    }
+  }
+}

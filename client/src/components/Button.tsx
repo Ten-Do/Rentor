@@ -1,22 +1,23 @@
-import { type ButtonHTMLAttributes, type ElementType, forwardRef } from 'react';
+import { type ButtonHTMLAttributes, type ElementType, forwardRef } from 'react'
 
-type Size = 'sm' | 'md' | 'lg';
-type ButtonVariant = 'solid' | 'outline' | 'ghost';
-type ColorScheme = 'primary' | 'neutral';
+type Size = 'sm' | 'md' | 'lg'
+type ButtonVariant = 'solid' | 'outline' | 'ghost'
+type ColorScheme = 'primary' | 'neutral'
 
-interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'size'> {
-  as?: ElementType;
-  size?: Size;
-  variant?: ButtonVariant;
-  colorScheme?: ColorScheme;
-  href?: string;
+interface ButtonProps
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'size'> {
+  as?: ElementType
+  size?: Size
+  variant?: ButtonVariant
+  colorScheme?: ColorScheme
+  href?: string
 }
 
 const sizeClasses: Record<Size, string> = {
   sm: 'h-8 px-3 text-sm rounded-md',
   md: 'h-10 px-4 text-base rounded-lg',
   lg: 'h-12 px-6 text-lg rounded-lg',
-};
+}
 
 const variantClasses: Record<ButtonVariant, Record<ColorScheme, string>> = {
   solid: {
@@ -37,7 +38,7 @@ const variantClasses: Record<ButtonVariant, Record<ColorScheme, string>> = {
     neutral:
       'font-medium transition-colors duration-200 text-gray-400 hover:bg-gray-600/10 active:bg-gray-600/20 disabled:text-gray-800 disabled:opacity-50',
   },
-};
+}
 
 export const Button = forwardRef<HTMLElement, ButtonProps>(
   (
@@ -51,18 +52,11 @@ export const Button = forwardRef<HTMLElement, ButtonProps>(
     },
     ref
   ) => {
-    const classes = `${sizeClasses[size]} ${variantClasses[variant][colorScheme]} ${className}`;
-    const Component = as || 'button';
+    const classes = `${sizeClasses[size]} ${variantClasses[variant][colorScheme]} ${className}`
+    const Component = as || 'button'
 
-    return (
-      <Component
-        ref={ref}
-        className={classes}
-        {...props}
-      />
-    );
+    return <Component ref={ref} className={classes} {...props} />
   }
-);
+)
 
-Button.displayName = 'Button';
-
+Button.displayName = 'Button'
