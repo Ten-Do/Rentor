@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+button,
+a,
+[role="button"],
+label {
+  cursor: pointer;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+textarea {
+  cursor: text;
+}
+
+select {
+  cursor: pointer;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled,
+[disabled] {
+  cursor: not-allowed;
+}
