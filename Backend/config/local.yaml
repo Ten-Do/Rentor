@@ -1,0 +1,7 @@
+env: "local" # local, dev, prod
+storage_path: "./storage/storage.db"
+http_server:
+  host: "localhost"
+  port: 8080
+  timeout_seconds: 4s # время на обработку запроса
+  iddle_timeout_seconds: 60s # время бездействия соединения
