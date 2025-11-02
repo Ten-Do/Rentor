@@ -21,6 +21,7 @@ type Config struct {
 	HTTPServer  HTTPServer `mapstructure:"http_server" yaml:"http_server"`
 }
 
+// LoadConfig loads configuration from a YAML file specified by CONFIG_PATH env variable
 func LoadConfig() (*Config, error) {
 	config_path := os.Getenv("CONFIG_PATH")
 	if config_path == "" {
