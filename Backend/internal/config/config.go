@@ -9,16 +9,16 @@ import (
 )
 
 type HTTPServer struct {
-	Host                string        `yaml:"host"`
-	Port                int           `yaml:"port"`
-	TimeoutSeconds      time.Duration `yaml:"timeout_seconds"`
-	IddleTimeoutSeconds time.Duration `yaml:"iddle_timeout_seconds"`
+	Host                string        `mapstructure:"host" yaml:"host"`
+	Port                int           `mapstructure:"port" yaml:"port"`
+	TimeoutSeconds      time.Duration `mapstructure:"timeout_seconds" yaml:"timeout_seconds"`
+	IddleTimeoutSeconds time.Duration `mapstructure:"iddle_timeout_seconds" yaml:"iddle_timeout_seconds"`
 }
 
 type Config struct {
-	Env         string     `yaml:"env"`
-	StoragePath string     `yaml:"storage_path"`
-	HTTPServer  HTTPServer `yaml:"http_server"`
+	Env         string     `mapstructure:"env" yaml:"env"`
+	StoragePath string     `mapstructure:"storage_path" yaml:"storage_path"`
+	HTTPServer  HTTPServer `mapstructure:"http_server" yaml:"http_server"`
 }
 
 func LoadConfig() (*Config, error) {
