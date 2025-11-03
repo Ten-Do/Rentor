@@ -1,6 +1,12 @@
 import { Link } from '../../components/Link'
+import { Button } from '../../components/Button'
+import { useAuth } from '../../hooks/data/useAuth'
+import { useModal } from '../../contexts/ModalContext'
 
 export const Header = () => {
+  const { isAuth } = useAuth()
+  const { open } = useModal()
+
   return (
     <header className="sticky top-0 z-50 bg-gray-900 border-b border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -12,9 +18,20 @@ export const Header = () => {
             Rentor
           </Link>
 
-          <Link to="/profile" size="md" colorScheme="primary">
-            Profile
-          </Link>
+          {isAuth ? (
+            <div className="flex items-center gap-4">
+              <Link to="/my/ads" size="md" colorScheme="primary">
+                My ads
+              </Link>
+              <Link to="/profile" size="md" colorScheme="primary">
+                Profile
+              </Link>
+            </div>
+          ) : (
+            <Button onClick={() => open('login')} size="md">
+              Login
+            </Button>
+          )}
         </div>
       </div>
     </header>

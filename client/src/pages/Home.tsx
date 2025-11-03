@@ -1,15 +1,16 @@
-import { useNavigate } from 'react-router-dom'
+import { useLoaderData } from 'react-router-dom'
+import { AdvertisementsGrid } from '../features/Advertisements'
+import { SearchForm } from '../features/Search'
+import type { HomeLoaderData } from '../dataLoaders/homeLoader'
 
 export const Home = () => {
-  const navigate = useNavigate()
+  const { ads } = useLoaderData() as HomeLoaderData
 
   return (
-    <>
-      <div>Главная</div>
-      <button onClick={() => navigate('/profile')}>Profile</button>
-      <button onClick={() => navigate('/advertisement/1')}>
-        Advertisement
-      </button>
-    </>
+    <div>
+      <h1 className="text-3xl font-bold mb-8 text-white">Advertisements</h1>
+      <SearchForm />
+      <AdvertisementsGrid ads={ads} />
+    </div>
   )
 }

@@ -137,3 +137,9 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Generated data file
+client/public/data.json
+
+# Cursor workspace metadata
+.cursor/
