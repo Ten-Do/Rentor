@@ -1,20 +1,19 @@
-
--- +goose up
+-- +goose Up
 
 -- we store additional user details in user_profile table
 -- linked to users table via user_id foreign key
 
 CREATE TABLE IF NOT EXISTS user_profile (
-    id SERIAL PRIMARY KEY, -- Unique identifier for each profile
-    user_id INTEGER NOT NULL UNIQUE, -- Foreign key to user table
-    first_name VARCHAR(100), -- User's first name
-    surname VARCHAR(100), -- User's surname
-    patronymic VARCHAR(100), -- User's patronymic
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp of profile creation
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp of last profile update
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE -- Foreign key constraint linking to users table
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- Unique identifier for each profile
+    user_id INTEGER NOT NULL UNIQUE, -- Foreign key to users table
+    first_name TEXT, -- User's first name
+    surname TEXT, -- User's surname
+    patronymic TEXT, -- User's patronymic
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of profile creation
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of last profile update
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- +goose down
+-- +goose Down
 
 DROP TABLE IF EXISTS user_profile;

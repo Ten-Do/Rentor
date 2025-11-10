@@ -143,3 +143,9 @@ client/public/data.json
 
 # Cursor workspace metadata
 .cursor/
+
+# Windows executable files
+*.exe
+
+# Database files
+*.db
