@@ -8,7 +8,7 @@
         "type": "apartment",
         "rooms": "2",
         "city": "Москва",
-        "image_url": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800"
+        "image_url": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80"
       },
       {
         "id": "550e8400-e29b-41d4-a716-446655440001",
@@ -17,7 +17,7 @@
         "type": "house",
         "rooms": "4",
         "city": "Санкт-Петербург",
-        "image_url": "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800"
+        "image_url": "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80"
       },
       {
         "id": "550e8400-e29b-41d4-a716-446655440002",
@@ -26,7 +26,7 @@
         "type": "room",
         "rooms": "1",
         "city": "Москва",
-        "image_url": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800"
+        "image_url": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&q=80"
       },
       {
         "id": "550e8400-e29b-41d4-a716-446655440003",
@@ -35,7 +35,7 @@
         "type": "apartment",
         "rooms": "studio",
         "city": "Москва",
-        "image_url": "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800"
+        "image_url": "https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=800&q=80"
       },
       {
         "id": "550e8400-e29b-41d4-a716-446655440004",
@@ -44,7 +44,7 @@
         "type": "apartment",
         "rooms": "3",
         "city": "Казань",
-        "image_url": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"
+        "image_url": "https://images.unsplash.com/photo-1502672260066-6bc05c107f42?w=800&q=80"
       },
       {
         "id": "550e8400-e29b-41d4-a716-446655440005",
@@ -53,7 +53,7 @@
         "type": "house",
         "rooms": "5",
         "city": "Подмосковье",
-        "image_url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800"
+        "image_url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80"
       }
     ],
     "pagination": {
@@ -76,10 +76,10 @@
     "longitude": 37.6173,
     "square": 65.5,
     "image_urls": [
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200",
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200",
-      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200",
-      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1200"
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80",
+      "https://images.unsplash.com/photo-1502672260066-6bc05c107f42?w=800&q=80",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
+      "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=800&q=80"
     ],
     "landlord_name": "Иван Петров",
     "landlord_email": "ivan.petrov@example.com",
@@ -100,9 +100,10 @@
     "longitude": 30.3351,
     "square": 120.0,
     "image_urls": [
-      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1200",
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200",
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200"
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80",
+      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
+      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80"
     ],
     "landlord_name": "Мария Иванова",
     "landlord_email": "maria.ivanova@example.com",
@@ -123,8 +124,9 @@
     "longitude": 37.6297,
     "square": 18.0,
     "image_urls": [
-      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200",
-      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1200"
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&q=80",
+      "https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800&q=80",
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=80"
     ],
     "landlord_name": "Алексей Смирнов",
     "landlord_email": "alexey.smirnov@example.com",
@@ -141,12 +143,13 @@
     "rooms": "studio",
     "city": "Москва",
     "address": "ул. Арбат, д. 8, кв. 15",
-    "latitude": 55.7520,
+    "latitude": 55.752,
     "longitude": 37.5925,
     "square": 32.0,
     "image_urls": [
-      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1200",
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200"
+      "https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=800&q=80",
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&q=80"
     ],
     "landlord_name": "Ольга Козлова",
     "landlord_email": "olga.kozlova@example.com",
@@ -172,7 +175,7 @@
         "type": "apartment",
         "rooms": "2",
         "city": "Москва",
-        "image_url": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800"
+        "image_url": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80"
       },
       {
         "id": "550e8400-e29b-41d4-a716-446655440003",
@@ -181,7 +184,7 @@
         "type": "apartment",
         "rooms": "studio",
         "city": "Москва",
-        "image_url": "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800"
+        "image_url": "https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=800&q=80"
       }
     ],
     "pagination": {

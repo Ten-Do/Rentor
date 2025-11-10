@@ -1,26 +1,26 @@
+import { XMarkIcon } from '@heroicons/react/24/outline'
 import { type ReactNode, useEffect, useRef } from 'react'
+import { useModal, type ModalName } from '../contexts/ModalContext'
 
 interface ModalProps {
-  isOpen: boolean
-  onClose: () => void
+  name: ModalName
   children: ReactNode
   className?: string
 }
 
-export const Modal = ({
-  isOpen,
-  onClose,
-  children,
-  className = '',
-}: ModalProps) => {
+export const Modal = ({ name, children, className = '' }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (!isOpen) return
+  const { close } = useModal()
 
+  const closeModal = () => {
+    close(name)
+  }
+
+  useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') closeModal()
     }
 
     document.addEventListener('keydown', handleEscape)
@@ -30,13 +30,11 @@ export const Modal = ({
       document.removeEventListener('keydown', handleEscape)
       document.body.style.overflow = ''
     }
-  }, [isOpen, onClose])
+  }, [])
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === overlayRef.current) onClose()
+    if (e.target === overlayRef.current) closeModal()
   }
-
-  if (!isOpen) return null
 
   return (
     <div
@@ -50,24 +48,11 @@ export const Modal = ({
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          onClick={onClose}
+          onClick={closeModal}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-300 transition-colors duration-200"
           aria-label="Закрыть"
         >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <XMarkIcon className="w-6 h-6" />
         </button>
         {children}
       </div>

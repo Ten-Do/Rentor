@@ -9,6 +9,8 @@ interface InputProps
   size?: Size
   variant?: InputVariant
   colorScheme?: ColorScheme
+  label?: string
+  error?: string | null
 }
 
 const sizeClasses: Record<Size, string> = {
@@ -38,13 +40,32 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       variant = 'default',
       colorScheme = 'primary',
       className = '',
+      label,
+      id,
+      error,
       ...props
     },
     ref
   ) => {
-    const classes = `${sizeClasses[size]} ${variantClasses[variant][colorScheme]} ${className}`
+    const effectiveVariant = error ? 'error' : variant
+    const classes = `${sizeClasses[size]} ${variantClasses[effectiveVariant][colorScheme]} ${className}`
 
-    return <input ref={ref} className={classes} {...props} />
+    return (
+      <div className='relative group'>
+        {label && (
+          <label
+            htmlFor={id}
+            className="block text-sm font-medium text-gray-300 mb-2"
+          >
+            {label}
+          </label>
+        )}
+        <input ref={ref} id={id} className={classes} {...props} />
+        {error && (
+          <p className="absolute top-full mt-2 right-0 text-sm text-red-400">{error}</p>
+        )}
+      </div>
+    )
   }
 )
 

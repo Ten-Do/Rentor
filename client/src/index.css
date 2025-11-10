@@ -1,5 +1,10 @@
 @import 'tailwindcss';
 
+html,
+body {
+  scrollbar-gutter: stable;
+}
+
 button,
 a,
 [role='button'],
@@ -27,4 +32,12 @@ textarea:disabled,
 select:disabled,
 [disabled] {
   cursor: not-allowed;
+}
+
+.swiper-slide-thumb-active > div {
+  opacity: 1 !important;
+}
+
+.swiper-button-disabled {
+  display: none !important;
 }
