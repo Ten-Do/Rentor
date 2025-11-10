@@ -7,6 +7,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// TODO: keep-alive, connection pool, etc.
+
 func Connect(storage_path string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", storage_path)
 	if err != nil {
