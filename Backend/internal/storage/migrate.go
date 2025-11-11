@@ -13,6 +13,8 @@ const (
 	directionDown = "down"
 )
 
+// TODO: handle more goose commands (status, redo, etc.) as needed
+
 func RunMigrations(db *sql.DB, migrationsDir string, direction string) error {
 
 	// Set the dialect for goose

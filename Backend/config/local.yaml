@@ -3,5 +3,5 @@ storage_path: "./storage/storage.db"
 http_server:
   host: "localhost"
   port: 8080
-  timeout_seconds: 4s # время на обработку запроса
-  iddle_timeout_seconds: 60s # время бездействия соединения
+  timeout_seconds: 4s # timeout for http server
+  idle_timeout_seconds: 60s # idle timeout for connection

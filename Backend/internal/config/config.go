@@ -8,11 +8,13 @@ import (
 	"github.com/spf13/viper"
 )
 
+// TODO: add more configuration fields as needed
+
 type HTTPServer struct {
-	Host                string        `mapstructure:"host" yaml:"host"`
-	Port                int           `mapstructure:"port" yaml:"port"`
-	TimeoutSeconds      time.Duration `mapstructure:"timeout_seconds" yaml:"timeout_seconds"`
-	IddleTimeoutSeconds time.Duration `mapstructure:"iddle_timeout_seconds" yaml:"iddle_timeout_seconds"`
+	Host               string        `mapstructure:"host" yaml:"host"`
+	Port               string        `mapstructure:"port" yaml:"port"`
+	TimeoutSeconds     time.Duration `mapstructure:"timeout_seconds" yaml:"timeout_seconds"`
+	IdleTimeoutSeconds time.Duration `mapstructure:"idle_timeout_seconds" yaml:"idle_timeout_seconds"`
 }
 
 type Config struct {

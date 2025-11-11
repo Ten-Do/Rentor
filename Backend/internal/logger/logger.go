@@ -10,6 +10,8 @@ const (
 	EnvProd  = "prod"
 )
 
+// TODO: add more logger configurations as needed
+
 // logger is a global zap.Logger instance
 var logger *zap.Logger
 
@@ -53,4 +55,8 @@ func Sync() error {
 }
 func Field(key string, value any) zap.Field {
 	return zap.Any(key, value)
+}
+
+func With(fields ...zap.Field) *zap.Logger {
+	return logger.With(fields...)
 }
