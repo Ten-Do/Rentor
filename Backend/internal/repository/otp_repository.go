@@ -20,6 +20,11 @@ func NewOTPRepository(db *sql.DB) OTPRepository {
 
 // CreateOTP creates a new OTP record
 func (r *otpRepository) CreateOTP(userID int, email string, codeHash string, maxAttempts int, expiresAt time.Time) error {
+	if err := validateEmail(email); err != nil {
+		return err
+	}
+	email = toLowerRegister(email)
+
 	_, err := r.db.Exec(
 		"INSERT INTO otp_codes (user_id, email, code_hash, max_attempts, expires_at) VALUES (?, ?, ?, ?, ?)",
 		userID,
@@ -33,6 +38,11 @@ func (r *otpRepository) CreateOTP(userID int, email string, codeHash string, max
 
 // GetOTPByEmail retrieves OTP record by email
 func (r *otpRepository) GetOTPByEmail(email string) (*models.OTPCode, error) {
+	if err := validateEmail(email); err != nil {
+		return nil, err
+	}
+	email = toLowerRegister(email)
+
 	otp := &models.OTPCode{}
 	err := r.db.QueryRow(
 		"SELECT id, user_id, email, code_hash, attempts, max_attempts, expires_at, created_at FROM otp_codes WHERE email = ?",
@@ -85,6 +95,11 @@ func (r *otpRepository) DeleteOTPByID(id int) error {
 
 // DeleteOTPByEmail deletes OTP record by email
 func (r *otpRepository) DeleteOTPByEmail(email string) error {
+	if err := validateEmail(email); err != nil {
+		return err
+	}
+	email = toLowerRegister(email)
+
 	_, err := r.db.Exec("DELETE FROM otp_codes WHERE email = ?", email)
 	return err
 }

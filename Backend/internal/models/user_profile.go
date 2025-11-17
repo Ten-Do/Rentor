@@ -20,8 +20,18 @@ type CreateUserProfileInput struct {
 
 // UpdateUserProfileInput input data for updating a user profile
 type UpdateUserProfileInput struct {
-	UserID     int    `json:"user_id"`
 	FirstName  string `json:"first_name"`
 	Surname    string `json:"surname"`
 	Patronymic string `json:"patronymic"`
+	Phone      string `json:"phone_number"`
+}
+
+type GetUserProfileOutput struct {
+	UserID     int       `json:"user_id"`
+	Email      string    `json:"email"`
+	Phone      string    `json:"phone_number"`
+	FirstName  string    `json:"first_name"`
+	Surname    string    `json:"surname"`
+	Patronymic string    `json:"patronymic"`
+	CreatedAt  time.Time `json:"created_at"`
 }

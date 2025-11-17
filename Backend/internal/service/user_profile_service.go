@@ -8,19 +8,21 @@ import (
 
 // userProfileService implements UserProfileService
 type userProfileService struct {
-	repo repository.UserProfileRepository
+	userProfileRepo repository.UserProfileRepository
+	userRepo        repository.UserRepository
 }
 
 // NewUserProfileService creates a new user profile service
-func NewUserProfileService(repo repository.UserProfileRepository) UserProfileService {
+func NewUserProfileService(userRepo repository.UserRepository, userProfileRepo repository.UserProfileRepository) UserProfileService {
 	return &userProfileService{
-		repo: repo,
+		userProfileRepo: userProfileRepo,
+		userRepo:        userRepo,
 	}
 }
 
 // GetUserProfile retrieves user profile
 func (s *userProfileService) GetUserProfile(userID int) (*models.UserProfile, error) {
-	profile, err := s.repo.GetUserProfileByUserID(userID)
+	profile, err := s.userProfileRepo.GetUserProfileByUserID(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +34,15 @@ func (s *userProfileService) GetUserProfile(userID int) (*models.UserProfile, er
 
 // UpdateUserProfile updates user profile
 func (s *userProfileService) UpdateUserProfile(userID int, input *models.UpdateUserProfileInput) error {
-	profile, err := s.repo.GetUserProfileByUserID(userID)
+	user, err := s.userRepo.GetUserByID(userID)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return errors.New("user not found")
+	}
+
+	profile, err := s.userProfileRepo.GetUserProfileByUserID(userID)
 	if err != nil {
 		return err
 	}
@@ -40,11 +50,21 @@ func (s *userProfileService) UpdateUserProfile(userID int, input *models.UpdateU
 		return errors.New("user profile not found")
 	}
 
+	user.Phone = input.Phone
 	profile.FirstName = input.FirstName
 	profile.Surname = input.Surname
 	profile.Patronymic = input.Patronymic
 
-	return s.repo.UpdateUserProfile(profile.ID, profile)
+	err = s.userRepo.UpdateUser(user.UserID, user)
+	if err != nil {
+		return err
+	}
+	err = s.userProfileRepo.UpdateUserProfile(profile.ID, profile)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // CreateDefaultUserProfile creates a default user profile
@@ -55,6 +75,6 @@ func (s *userProfileService) CreateDefaultUserProfile(userID int) error {
 		Surname:    "",
 		Patronymic: "",
 	}
-	_, err := s.repo.CreateUserProfile(profile)
+	_, err := s.userProfileRepo.CreateUserProfile(profile)
 	return err
 }

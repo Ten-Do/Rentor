@@ -10,15 +10,12 @@ import (
 // JWTService handles JWT token operations
 type JWTService interface {
 	GenerateAccessToken(userID int, email string) (string, error)
-	GenerateRefreshToken(userID int) (string, error)
-	ValidateToken(tokenString string) (int, error) // returns userID
+	GenerateRefreshToken(userID int, email string) (string, error)
+	ValidateAccessToken(tokenString string) (*JWTClaims, error)
+	ValidateRefreshToken(tokenString string) (*JWTClaims, error)
 	RefreshAccessToken(refreshToken string) (string, error)
-}
-
-type jwtService struct {
-	secret          string
-	accessTokenTTL  time.Duration
-	refreshTokenTTL time.Duration
+	GetRefreshTokenTTL() time.Duration
+	GetAccessTokenTTL() time.Duration
 }
 
 // JWTClaims custom claims structure
@@ -27,6 +24,13 @@ type JWTClaims struct {
 	Email  string `json:"email"`
 	Type   string `json:"type"` // "access" or "refresh"
 	jwt.RegisteredClaims
+}
+
+// jwtService implementation
+type jwtService struct {
+	secret          string
+	accessTokenTTL  time.Duration
+	refreshTokenTTL time.Duration
 }
 
 // NewJWTService creates a new JWT service
@@ -58,10 +62,11 @@ func (s *jwtService) GenerateAccessToken(userID int, email string) (string, erro
 }
 
 // GenerateRefreshToken creates a new refresh JWT token
-func (s *jwtService) GenerateRefreshToken(userID int) (string, error) {
+func (s *jwtService) GenerateRefreshToken(userID int, email string) (string, error) {
 	now := time.Now()
 	claims := JWTClaims{
 		UserID: userID,
+		Email:  email,
 		Type:   "refresh",
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(now.Add(s.refreshTokenTTL)),
@@ -75,42 +80,19 @@ func (s *jwtService) GenerateRefreshToken(userID int) (string, error) {
 	return token.SignedString([]byte(s.secret))
 }
 
-// ValidateToken validates and extracts claims from token
-func (s *jwtService) ValidateToken(tokenString string) (int, error) {
+// ValidateAccessToken validates and returns claims from an access token
+func (s *jwtService) ValidateAccessToken(tokenString string) (*JWTClaims, error) {
+	return s.validateToken(tokenString, "access")
+}
+
+func (s *jwtService) ValidateRefreshToken(tokenString string) (*JWTClaims, error) {
+	return s.validateToken(tokenString, "refresh")
+}
+
+func (s *jwtService) validateToken(tokenString, expectedType string) (*JWTClaims, error) {
 	claims := &JWTClaims{}
 
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		// Verify signing method
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("invalid signing method")
-		}
-		return []byte(s.secret), nil
-	})
-
-	if err != nil {
-		return 0, err
-	}
-
-	if !token.Valid {
-		return 0, errors.New("invalid token")
-	}
-
-	if claims.ExpiresAt.Before(time.Now()) {
-		return 0, errors.New("token expired")
-	}
-
-	return claims.UserID, nil
-}
-
-// RefreshAccessToken generates new access token from refresh token
-func (s *jwtService) RefreshAccessToken(refreshToken string) (string, error) {
-	userID, err := s.ValidateToken(refreshToken)
-	if err != nil {
-		return "", err
-	}
-
-	claims := &JWTClaims{}
-	token, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
 		}
@@ -118,12 +100,34 @@ func (s *jwtService) RefreshAccessToken(refreshToken string) (string, error) {
 	})
 
 	if err != nil || !token.Valid {
-		return "", errors.New("invalid refresh token")
+		return nil, errors.New("invalid token")
 	}
 
-	if claims.Type != "refresh" {
-		return "", errors.New("token is not a refresh token")
+	if claims.ExpiresAt.Time.Before(time.Now()) {
+		return nil, errors.New("token expired")
 	}
 
-	return s.GenerateAccessToken(userID, claims.Email)
+	if claims.Type != expectedType {
+		return nil, errors.New("invalid token type")
+	}
+
+	return claims, nil
+}
+
+func (s *jwtService) GetRefreshTokenTTL() time.Duration {
+	return s.refreshTokenTTL
+}
+
+func (s *jwtService) GetAccessTokenTTL() time.Duration {
+	return s.accessTokenTTL
+}
+
+// RefreshAccessToken generates a new access token from a refresh token
+func (s *jwtService) RefreshAccessToken(refreshToken string) (string, error) {
+	claims, err := s.ValidateRefreshToken(refreshToken)
+	if err != nil {
+		return "", err
+	}
+
+	return s.GenerateAccessToken(claims.UserID, claims.Email)
 }

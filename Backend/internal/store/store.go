@@ -33,7 +33,7 @@ func NewStore(db *sql.DB, cfg *config.Config) *Store {
 
 	// Create services, passing repositories to them
 	userService := service.NewUserService(userRepo, userProfileRepo)
-	userProfileService := service.NewUserProfileService(userProfileRepo)
+	userProfileService := service.NewUserProfileService(userRepo, userProfileRepo)
 	jwtService := service.NewJWTService(
 		cfg.Auth.JWTSecret,
 		cfg.Auth.AccessTokenTTL,

@@ -18,6 +18,7 @@ import (
 	"rentor/internal/storage"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 func main() {
@@ -82,6 +83,15 @@ func main() {
 
 	logger.Info("HTTP router initialized")
 
+	router.Use(
+		cors.Handler(cors.Options{
+			AllowedOrigins:   []string{"*"},
+			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowedHeaders:   []string{"*"},
+			ExposedHeaders:   []string{"Link"},
+			AllowCredentials: true,
+			MaxAge:           300,
+		}))
 	// ============================================
 	// 7. Middlewares registration
 	// ============================================

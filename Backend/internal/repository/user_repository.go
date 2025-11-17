@@ -3,7 +3,10 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"net/mail"
+	"regexp"
 	"rentor/internal/models"
+	"strings"
 )
 
 // userRepository implements UserRepository
@@ -20,6 +23,25 @@ func NewUserRepository(db *sql.DB) UserRepository {
 func (r *userRepository) CreateUser(phone string, email string) (int, error) {
 	if phone == "" && email == "" {
 		return 0, errors.New("phone or email required")
+	}
+
+	// validate email
+	if email != "" {
+		err := validateEmail(email)
+		if err != nil {
+			return 0, err
+		}
+	}
+	// validate phone
+	if phone != "" {
+		err := validatePhone(phone)
+		if err != nil {
+			return 0, err
+		}
+	}
+	// turn email to lower register
+	if email != "" {
+		email = toLowerRegister(email)
 	}
 
 	var res sql.Result
@@ -51,7 +73,7 @@ func (r *userRepository) GetUserByID(id int) (*models.User, error) {
 	err := r.db.QueryRow(
 		"SELECT id, COALESCE(email, ''), COALESCE(phone_number, ''), created_at, updated_at FROM user WHERE id = ?",
 		id,
-	).Scan(&user.ID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
+	).Scan(&user.UserID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -65,11 +87,18 @@ func (r *userRepository) GetUserByID(id int) (*models.User, error) {
 
 // GetUserByEmail retrieves a user by email
 func (r *userRepository) GetUserByEmail(email string) (*models.User, error) {
+	// validate email
+	err := validateEmail(email)
+	if err != nil {
+		return nil, err
+	}
+	email = toLowerRegister(email)
+
 	user := &models.User{}
-	err := r.db.QueryRow(
+	err = r.db.QueryRow(
 		"SELECT id, COALESCE(email, ''), COALESCE(phone_number, ''), created_at, updated_at FROM user WHERE email = ?",
 		email,
-	).Scan(&user.ID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
+	).Scan(&user.UserID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -83,11 +112,17 @@ func (r *userRepository) GetUserByEmail(email string) (*models.User, error) {
 
 // GetUserByPhone retrieves a user by phone
 func (r *userRepository) GetUserByPhone(phone string) (*models.User, error) {
+	// validate phone
+	err := validatePhone(phone)
+	if err != nil {
+		return nil, err
+	}
+
 	user := &models.User{}
-	err := r.db.QueryRow(
+	err = r.db.QueryRow(
 		"SELECT id, COALESCE(email, ''), COALESCE(phone_number, ''), created_at, updated_at FROM user WHERE phone_number = ?",
 		phone,
-	).Scan(&user.ID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
+	).Scan(&user.UserID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -110,7 +145,7 @@ func (r *userRepository) GetAllUsers() ([]*models.User, error) {
 	var users []*models.User
 	for rows.Next() {
 		user := &models.User{}
-		if err := rows.Scan(&user.ID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt); err != nil {
+		if err := rows.Scan(&user.UserID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt); err != nil {
 			return nil, err
 		}
 		users = append(users, user)
@@ -134,7 +169,7 @@ func (r *userRepository) GetPageUsers(offset, limit int) ([]*models.User, error)
 	var users []*models.User
 	for rows.Next() {
 		user := &models.User{}
-		if err := rows.Scan(&user.ID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt); err != nil {
+		if err := rows.Scan(&user.UserID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt); err != nil {
 			return nil, err
 		}
 		users = append(users, user)
@@ -145,7 +180,22 @@ func (r *userRepository) GetPageUsers(offset, limit int) ([]*models.User, error)
 
 // UpdateUser updates a user
 func (r *userRepository) UpdateUser(id int, user *models.User) error {
-	_, err := r.db.Exec(
+	// validate email
+	err := validateEmail(user.Email)
+	if err != nil {
+		return err
+	}
+	user.Email = toLowerRegister(user.Email)
+
+	// validate phone
+	if user.Phone != "" {
+		err = validatePhone(user.Phone)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = r.db.Exec(
 		"UPDATE user SET email = ?, phone_number = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
 		user.Email,
 		user.Phone,
@@ -162,12 +212,60 @@ func (r *userRepository) DeleteUserByID(id int) error {
 
 // DeleteUserByPhone deletes a user by phone
 func (r *userRepository) DeleteUserByPhone(phone string) error {
-	_, err := r.db.Exec("DELETE FROM user WHERE phone_number = ?", phone)
+	// validate phone
+	err := validatePhone(phone)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.db.Exec("DELETE FROM user WHERE phone_number = ?", phone)
 	return err
 }
 
 // DeleteUserByEmail deletes a user by email
 func (r *userRepository) DeleteUserByEmail(email string) error {
-	_, err := r.db.Exec("DELETE FROM user WHERE email = ?", email)
+	// validate email
+	err := validateEmail(email)
+	if err != nil {
+		return err
+	}
+	email = toLowerRegister(email)
+
+	_, err = r.db.Exec("DELETE FROM user WHERE email = ?", email)
 	return err
+}
+
+// validateEmail проверяет корректность email
+func validateEmail(email string) error {
+	if email == "" {
+		return errors.New("email is empty")
+	}
+
+	// Используем стандартный пакет net/mail
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		return errors.New("invalid email format")
+	}
+
+	return nil
+}
+
+// validatePhone проверяет корректность телефона
+func validatePhone(phone string) error {
+	if phone == "" {
+		return errors.New("phone is empty")
+	}
+
+	// Простая проверка: цифры, +, -, пробелы
+	re := regexp.MustCompile(`^\+?\d[\d\s\-]{7,14}\d$`)
+	if !re.MatchString(phone) {
+		return errors.New("invalid phone format")
+	}
+
+	return nil
+}
+
+// toLowerRegister приводит email к нижнему регистру
+func toLowerRegister(email string) string {
+	return strings.ToLower(email)
 }

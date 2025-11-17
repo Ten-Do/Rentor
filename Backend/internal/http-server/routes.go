@@ -14,15 +14,16 @@ func RegisterRoutes(router chi.Router, dataStore *store.Store, otpLen int, otpEx
 	authHandler := handlers.NewAuthHandler(dataStore.UserService, dataStore.OTPService, dataStore.JWTService, otpLen, otpExpMin, otpMaxAttempts)
 	router.Post("/auth/send-otp", authHandler.SendOTP)
 	router.Post("/auth/verify-otp", authHandler.VerifyOTP)
+	router.Post("/auth/refresh", authHandler.RefreshToken)
 
 	// Protected routes (require JWT)
-	authMiddleware := middleware.AuthMiddleware(dataStore.JWTService)
+	authMiddleware := middleware.AuthMiddlewareWithRefresh(dataStore.JWTService, "access_token", "refresh_token")
 
 	// logout
 	router.With(authMiddleware).Post("/auth/logout", authHandler.Logout)
 
 	// User profile
-	userProfileHandler := handlers.NewUserProfileHandler(dataStore.UserProfileService)
+	userProfileHandler := handlers.NewUserProfileHandler(dataStore.UserService, dataStore.UserProfileService)
 	router.With(authMiddleware).Get("/user/profile", userProfileHandler.GetUserProfile)
 	router.With(authMiddleware).Put("/user/profile", userProfileHandler.UpdateUserProfile)
 
