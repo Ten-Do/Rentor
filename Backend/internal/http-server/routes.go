@@ -28,12 +28,13 @@ func RegisterRoutes(router chi.Router, dataStore *store.Store, otpLen int, otpEx
 	router.With(authMiddleware).Put("/user/profile", userProfileHandler.UpdateUserProfile)
 
 	// Advertisements
-	router.Get("/advertisements", handlers.ListAdvertisements)
-	router.With(authMiddleware).Post("/advertisements", handlers.CreateAdvertisement)
-	router.Get("/advertisements/{id}", handlers.GetAdvertisement)
-	router.With(authMiddleware).Put("/advertisements/{id}", handlers.UpdateAdvertisement)
-	router.With(authMiddleware).Delete("/advertisements/{id}", handlers.DeleteAdvertisement)
-	router.With(authMiddleware).Post("/advertisements/{id}/images", handlers.AddAdImages)
-	router.With(authMiddleware).Delete("/advertisements/{ad_id}/images/{image_id}", handlers.DeleteAdImage)
-	router.With(authMiddleware).Get("/advertisements/my", handlers.GetMyAdvertisements)
+	adsHandler := handlers.NewAdvertisementHandlers(dataStore.AdService, dataStore.ImageService)
+	router.Get("/advertisements", adsHandler.ListAdvertisements)
+	router.With(authMiddleware).Post("/advertisements", adsHandler.CreateAdvertisement)
+	router.Get("/advertisements/{id}", adsHandler.GetAdvertisement)
+	router.With(authMiddleware).Put("/advertisements/{id}", adsHandler.UpdateAdvertisement)
+	router.With(authMiddleware).Delete("/advertisements/{id}", adsHandler.DeleteAdvertisement)
+	router.With(authMiddleware).Post("/advertisements/{id}/images", adsHandler.AddAdImages)
+	router.With(authMiddleware).Delete("/advertisements/{ad_id}/images/{image_id}", adsHandler.DeleteAdImage)
+	router.With(authMiddleware).Get("/advertisements/my", adsHandler.GetMyAdvertisements)
 }

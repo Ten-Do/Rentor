@@ -44,18 +44,19 @@ type EmailService interface {
 	SendEmail(to, subject, body string) error
 }
 
+// AdvertisementService defines the interface for advertisement operations.
 type AdvertisementService interface {
 	CreateAdvertisement(userID int, input *models.CreateAdvertisementInput) (*models.GetAd, error)
-	AddImages(adID int, urls []string, userID int) error
 	GetAdvertisement(id int) (*models.GetAd, error)
-	GetAdvertisements(filters *models.AdFilters) (*models.GetAdPreviewsList, error)
+	GetAdvertisementsPaged(filters *models.AdFilters) (*models.GetAdPreviewsList, error)
 	GetMyAdvertisements(userID, page, limit int) (*models.GetAdPreviewsList, error)
-	UpdateAdvertisement(id int, userID int, input *models.UpdateAdvertisementInput) error
-	DeleteAdvertisement(id int, userID int) error
-	DeleteImage(adID, imageID, userID int) error
+	UpdateAdvertisement(userID, adID int, input *models.UpdateAdvertisementInput) error
+	DeleteAdvertisement(userID, adID int) error
+	AddImages(userID, adID int, urls []string) (*models.ImagesUploadResponse, error)
+	DeleteImage(userID, adID, imageID int) error
 }
 
 // ImageService интерфейс для работы с изображениями
-type ImageServiceInterface interface {
+type ImageService interface {
 	SaveAdvertisementImages(adID int, files []*multipart.FileHeader) ([]string, error)
 }

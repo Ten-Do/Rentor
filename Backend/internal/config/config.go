@@ -34,11 +34,13 @@ type SMTP struct {
 }
 
 type Config struct {
-	Env         string     `mapstructure:"env" yaml:"env"`
-	StoragePath string     `mapstructure:"storage_path" yaml:"storage_path"`
-	HTTPServer  HTTPServer `mapstructure:"http_server" yaml:"http_server"`
-	Auth        Auth       `mapstructure:"auth" yaml:"auth"`
-	SMTP        SMTP       `mapstructure:"smtp" yaml:"smtp"`
+	Env              string     `mapstructure:"env" yaml:"env"`
+	StoragePath      string     `mapstructure:"storage_path" yaml:"storage_path"`
+	ImageStoragePath string     `mapstructure:"image_storage_path" yaml:"image_storage_path"`
+	BaseURL          string     `mapstructure:"base_url" yaml:"base_url"`
+	HTTPServer       HTTPServer `mapstructure:"http_server" yaml:"http_server"`
+	Auth             Auth       `mapstructure:"auth" yaml:"auth"`
+	SMTP             SMTP       `mapstructure:"smtp" yaml:"smtp"`
 }
 
 // LoadConfig loads configuration from a YAML file specified by CONFIG_PATH env variable

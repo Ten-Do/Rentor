@@ -1,5 +1,7 @@
 env: "local" # local, dev, prod
 storage_path: "./storage/storage.db"
+image_storage_path: "./storage/images"
+base_url: "/static/"
 http_server:
   host: "localhost"
   port: 8080

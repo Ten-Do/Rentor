@@ -18,8 +18,11 @@ type AdvertisementHandlers struct {
 	imageSvc  service.ImageService
 }
 
-func NewAdvertisementHandlers(adService service.AdvertisementService) *AdvertisementHandlers {
-	return &AdvertisementHandlers{adService: adService}
+func NewAdvertisementHandlers(adService service.AdvertisementService, imageSvc service.ImageService) *AdvertisementHandlers {
+	return &AdvertisementHandlers{
+		adService: adService,
+		imageSvc:  imageSvc,
+	}
 }
 
 // ===========================
@@ -96,7 +99,7 @@ func (h *AdvertisementHandlers) ListAdvertisements(w http.ResponseWriter, r *htt
 		filters.Keywords = &v
 	}
 
-	list, err := h.adService.GetAdvertisements(filters)
+	list, err := h.adService.GetAdvertisementsPaged(filters)
 	if err != nil {
 		http.Error(w, `{"error":"failed to fetch advertisements"}`, http.StatusInternalServerError)
 		return

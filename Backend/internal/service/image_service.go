@@ -10,21 +10,21 @@ import (
 	"time"
 )
 
-type ImageService struct {
+type imageService struct {
 	StoragePath string // например, "./storage"
 	BaseURL     string // например, "/static/"
 }
 
-// NewImageService создаёт сервис для работы с изображениями
-func NewImageService(storagePath, baseURL string) *ImageService {
-	return &ImageService{
+// NewimageService создаёт сервис для работы с изображениями
+func NewimageService(storagePath, baseURL string) *imageService {
+	return &imageService{
 		StoragePath: storagePath,
 		BaseURL:     baseURL,
 	}
 }
 
 // SaveAdvertisementImages сохраняет массив файлов для объявления и возвращает URL
-func (s *ImageService) SaveAdvertisementImages(adID int, files []*multipart.FileHeader) ([]string, error) {
+func (s *imageService) SaveAdvertisementImages(adID int, files []*multipart.FileHeader) ([]string, error) {
 	var urls []string
 
 	for _, fileHeader := range files {
