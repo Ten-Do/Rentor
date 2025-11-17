@@ -21,10 +21,11 @@ type Store struct {
 	UserProfileService service.UserProfileService
 	OTPService         service.OTPService
 	JWTService         service.JWTService
+	EmailService       service.EmailService
 }
 
 // NewStore creates a new store with initialized layers
-func NewStore(db *sql.DB, cfg *config.Auth) *Store {
+func NewStore(db *sql.DB, cfg *config.Config) *Store {
 	// Create repositories
 	userRepo := repository.NewUserRepository(db)
 	userProfileRepo := repository.NewUserProfileRepository(db)
@@ -33,12 +34,13 @@ func NewStore(db *sql.DB, cfg *config.Auth) *Store {
 	// Create services, passing repositories to them
 	userService := service.NewUserService(userRepo, userProfileRepo)
 	userProfileService := service.NewUserProfileService(userProfileRepo)
-	otpService := service.NewOTPService(otpRepo)
 	jwtService := service.NewJWTService(
-		cfg.JWTSecret,
-		cfg.AccessTokenTTL,
-		cfg.RefreshTokenTTL,
+		cfg.Auth.JWTSecret,
+		cfg.Auth.AccessTokenTTL,
+		cfg.Auth.RefreshTokenTTL,
 	)
+	emailService := service.NewEmailService(cfg.SMTP.SMTPFrom, cfg.SMTP.SMTPPassWord, cfg.SMTP.SMTPHost, cfg.SMTP.SMTPPort)
+	otpService := service.NewOTPService(otpRepo, emailService)
 
 	return &Store{
 		User:               userRepo,
@@ -48,5 +50,6 @@ func NewStore(db *sql.DB, cfg *config.Auth) *Store {
 		UserProfileService: userProfileService,
 		OTPService:         otpService,
 		JWTService:         jwtService,
+		EmailService:       emailService,
 	}
 }

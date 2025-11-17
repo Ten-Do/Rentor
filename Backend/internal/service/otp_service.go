@@ -2,12 +2,14 @@ package service
 
 import (
 	"crypto/rand"
-	"math/big"
 	"errors"
 	"fmt"
+	"math/big"
 	"time"
 
+	"rentor/internal/logger"
 	"rentor/internal/repository"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -19,13 +21,15 @@ type OTPService interface {
 }
 
 type otpService struct {
-	repo repository.OTPRepository
+	repo         repository.OTPRepository
+	emailService EmailService
 }
 
 // NewOTPService creates a new OTP service
-func NewOTPService(repo repository.OTPRepository) OTPService {
+func NewOTPService(repo repository.OTPRepository, emailService EmailService) OTPService {
 	return &otpService{
-		repo: repo,
+		repo:         repo,
+		emailService: emailService,
 	}
 }
 
@@ -34,14 +38,14 @@ func (s *otpService) generateOTP(length int) (string, error) {
 	const digits = "0123456789"
 
 	otp := make([]byte, length)
-    for i := 0; i < length; i++ {
-        n, err := rand.Int(rand.Reader, big.NewInt(int64(len(digits))))
-        if err != nil {
-            return "", err
-        }
-        otp[i] = digits[n.Int64()]
-    }
-    return string(otp), nil
+	for i := 0; i < length; i++ {
+		n, err := rand.Int(rand.Reader, big.NewInt(int64(len(digits))))
+		if err != nil {
+			return "", err
+		}
+		otp[i] = digits[n.Int64()]
+	}
+	return string(otp), nil
 }
 
 // GenerateAndStoreOTP creates a new OTP, hashes it, and stores in DB
@@ -68,9 +72,13 @@ func (s *otpService) GenerateAndStoreOTP(userID int, email string, otpLength int
 		return fmt.Errorf("failed to store OTP: %w", err)
 	}
 
-	// TODO: In production, send OTP via email
-	// For now, just log it (NEVER do this in production)
-	fmt.Printf("[DEV] OTP for %s: %s (expires at %v)\n", email, otpCode, expiresAt)
+	// send OTP via email
+	err = s.emailService.SendEmail(email, "Your OTP", "Your OTP is: "+otpCode)
+	if err != nil {
+		return fmt.Errorf("failed to send OTP via email: %w", err)
+	}
+
+	logger.Info("OTP sent", logger.Field("email", email), logger.Field("code", otpCode), logger.Field("expires_at", expiresAt))
 
 	return nil
 }

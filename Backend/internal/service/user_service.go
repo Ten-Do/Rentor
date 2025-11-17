@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"rentor/internal/logger"
 	"rentor/internal/models"
 	"rentor/internal/repository"
 )
@@ -56,6 +57,7 @@ func (s *userService) RegisterUser(input *models.CreateUserInput) (int, error) {
 	_, err = s.profileRepo.CreateUserProfile(profile)
 	if err != nil {
 		// Log error but don't fail (user is already created)
+		logger.Error("failed to create user profile", logger.Field("error", err.Error()), logger.Field("user_id", userID))
 		return userID, nil
 	}
 

@@ -71,7 +71,7 @@ func main() {
 	// Store includes:
 	// - Repositories (working with DB)
 	// - Services (business logic)
-	dataStore := store.NewStore(db, &cfg.Auth)
+	dataStore := store.NewStore(db, cfg)
 
 	logger.Info("Store initialized")
 

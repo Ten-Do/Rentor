@@ -26,11 +26,19 @@ type Auth struct {
 	OTPMaxAttempts       int           `mapstructure:"otp_max_attempts" yaml:"otp_max_attempts"`
 }
 
+type SMTP struct {
+	SMTPFrom     string `mapstructure:"smtp_from" yaml:"smtp_from" default:""`
+	SMTPPassWord string `mapstructure:"smtp_password" yaml:"smtp_password" default:""`
+	SMTPHost     string `mapstructure:"smtp_host" yaml:"smtp_host" default:""`
+	SMTPPort     string `mapstructure:"smtp_port" yaml:"smtp_port" default:""`
+}
+
 type Config struct {
 	Env         string     `mapstructure:"env" yaml:"env"`
 	StoragePath string     `mapstructure:"storage_path" yaml:"storage_path"`
 	HTTPServer  HTTPServer `mapstructure:"http_server" yaml:"http_server"`
 	Auth        Auth       `mapstructure:"auth" yaml:"auth"`
+	SMTP        SMTP       `mapstructure:"smtp" yaml:"smtp"`
 }
 
 // LoadConfig loads configuration from a YAML file specified by CONFIG_PATH env variable
@@ -56,6 +64,34 @@ func LoadConfig() (*Config, error) {
 		config.Auth.JWTSecret = os.Getenv("JWT_SECRET")
 		if config.Auth.JWTSecret == "" {
 			return nil, errors.New("LoadConfig: JWT_SECRET env variable is not set")
+		}
+	}
+
+	if config.SMTP.SMTPFrom == "" {
+		config.SMTP.SMTPFrom = os.Getenv("SMTP_FROM")
+		if config.SMTP.SMTPFrom == "" {
+			return nil, errors.New("LoadConfig: SMTP_FROM env variable is not set")
+		}
+	}
+
+	if config.SMTP.SMTPPassWord == "" {
+		config.SMTP.SMTPPassWord = os.Getenv("SMTP_PASSWORD")
+		if config.SMTP.SMTPPassWord == "" {
+			return nil, errors.New("LoadConfig: SMTP_PASSWORD env variable is not set")
+		}
+	}
+
+	if config.SMTP.SMTPHost == "" {
+		config.SMTP.SMTPHost = os.Getenv("SMTP_HOST")
+		if config.SMTP.SMTPHost == "" {
+			return nil, errors.New("LoadConfig: SMTP_HOST env variable is not set")
+		}
+	}
+
+	if config.SMTP.SMTPPort == "" {
+		config.SMTP.SMTPPort = os.Getenv("SMTP_PORT")
+		if config.SMTP.SMTPPort == "" {
+			return nil, errors.New("LoadConfig: SMTP_PORT env variable is not set")
 		}
 	}
 
