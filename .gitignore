@@ -149,3 +149,8 @@ client/public/data.json
 
 # Database files
 *.db
+
+# Images
+*.png
+*.jpg
+*.jpeg

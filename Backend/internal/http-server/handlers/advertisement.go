@@ -31,12 +31,14 @@ func NewAdvertisementHandlers(adService service.AdvertisementService, imageSvc s
 func (h *AdvertisementHandlers) CreateAdvertisement(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r)
 	if err != nil {
+		logger.Error("create ad failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 
 	var input models.CreateAdvertisementInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		logger.Error("create ad failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"invalid json"}`, http.StatusBadRequest)
 		return
 	}
@@ -60,6 +62,7 @@ func (h *AdvertisementHandlers) GetAdvertisement(w http.ResponseWriter, r *http.
 
 	ad, err := h.adService.GetAdvertisement(id)
 	if err != nil {
+		logger.Error("get ad failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"not found"}`, http.StatusNotFound)
 		return
 	}
@@ -101,6 +104,7 @@ func (h *AdvertisementHandlers) ListAdvertisements(w http.ResponseWriter, r *htt
 
 	list, err := h.adService.GetAdvertisementsPaged(filters)
 	if err != nil {
+		logger.Error("list ads failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"failed to fetch advertisements"}`, http.StatusInternalServerError)
 		return
 	}
@@ -114,6 +118,7 @@ func (h *AdvertisementHandlers) ListAdvertisements(w http.ResponseWriter, r *htt
 func (h *AdvertisementHandlers) GetMyAdvertisements(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r)
 	if err != nil {
+		logger.Error("get my ads failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
@@ -124,6 +129,7 @@ func (h *AdvertisementHandlers) GetMyAdvertisements(w http.ResponseWriter, r *ht
 
 	list, err := h.adService.GetMyAdvertisements(userID, page, limit)
 	if err != nil {
+		logger.Error("get my ads failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"failed to fetch my ads"}`, http.StatusInternalServerError)
 		return
 	}
@@ -137,6 +143,7 @@ func (h *AdvertisementHandlers) GetMyAdvertisements(w http.ResponseWriter, r *ht
 func (h *AdvertisementHandlers) UpdateAdvertisement(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r)
 	if err != nil {
+		logger.Error("update ad failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
@@ -145,12 +152,14 @@ func (h *AdvertisementHandlers) UpdateAdvertisement(w http.ResponseWriter, r *ht
 
 	var input models.UpdateAdvertisementInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		logger.Error("update ad failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"invalid json"}`, http.StatusBadRequest)
 		return
 	}
 
 	err = h.adService.UpdateAdvertisement(adID, userID, &input)
 	if err != nil {
+		logger.Error("update ad failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"cannot update advertisement"}`, http.StatusForbidden)
 		return
 	}
@@ -164,6 +173,7 @@ func (h *AdvertisementHandlers) UpdateAdvertisement(w http.ResponseWriter, r *ht
 func (h *AdvertisementHandlers) DeleteAdvertisement(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r)
 	if err != nil {
+		logger.Error("delete ad failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
@@ -172,6 +182,7 @@ func (h *AdvertisementHandlers) DeleteAdvertisement(w http.ResponseWriter, r *ht
 
 	err = h.adService.DeleteAdvertisement(userID, adID)
 	if err != nil {
+		logger.Error("delete ad failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"cannot delete"}`, http.StatusForbidden)
 		return
 	}
@@ -185,17 +196,28 @@ func (h *AdvertisementHandlers) DeleteAdvertisement(w http.ResponseWriter, r *ht
 func (h *AdvertisementHandlers) AddAdImages(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r)
 	if err != nil {
+		logger.Error("add images failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 
 	adID, _ := strconv.Atoi(chi.URLParam(r, "id"))
 
-	// Parse multipart form
-	r.ParseMultipartForm(20 << 20) // 20 MB limit
+	// Parse multipart form safely
+	if err := r.ParseMultipartForm(30 << 20); err != nil {
+		logger.Error("add images failed", logger.Field("error", err.Error()))
+		http.Error(w, `{"error":"failed to parse multipart form"}`, http.StatusBadRequest)
+		return
+	}
+	if r.MultipartForm == nil || r.MultipartForm.File == nil {
+		logger.Error("add images failed", logger.Field("error", "no files uploaded"))
+		http.Error(w, `{"error":"no files uploaded"}`, http.StatusBadRequest)
+		return
+	}
 
-	files := r.MultipartForm.File["images"]
-	if len(files) == 0 {
+	files, ok := r.MultipartForm.File["images"]
+	if !ok || len(files) == 0 {
+		logger.Error("add images failed", logger.Field("error", "no images provided"))
 		http.Error(w, `{"error":"no images provided"}`, http.StatusBadRequest)
 		return
 	}
@@ -203,13 +225,15 @@ func (h *AdvertisementHandlers) AddAdImages(w http.ResponseWriter, r *http.Reque
 	// Сохраняем изображения через ImageService
 	urls, err := h.imageSvc.SaveAdvertisementImages(adID, files)
 	if err != nil {
-		http.Error(w, `{"error":"cannot save images"}`, http.StatusInternalServerError)
+		logger.Error("add images failed", logger.Field("error", err.Error()))
+		http.Error(w, `{"error":"cannot save images "}`, http.StatusInternalServerError)
 		return
 	}
 
 	// Передаём в AdvertisementService для сохранения URL в БД
 	resp, err := h.adService.AddImages(userID, adID, urls)
 	if err != nil {
+		logger.Error("add images failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"cannot link images"}`, http.StatusForbidden)
 		return
 	}
@@ -223,6 +247,7 @@ func (h *AdvertisementHandlers) AddAdImages(w http.ResponseWriter, r *http.Reque
 func (h *AdvertisementHandlers) DeleteAdImage(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r)
 	if err != nil {
+		logger.Error("delete image failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
@@ -232,6 +257,7 @@ func (h *AdvertisementHandlers) DeleteAdImage(w http.ResponseWriter, r *http.Req
 
 	err = h.adService.DeleteImage(userID, adID, imgID)
 	if err != nil {
+		logger.Error("delete image failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"delete failed"}`, http.StatusForbidden)
 		return
 	}

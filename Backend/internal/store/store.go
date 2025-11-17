@@ -46,7 +46,7 @@ func NewStore(db *sql.DB, cfg *config.Config) *Store {
 	emailService := service.NewEmailService(cfg.SMTP.SMTPFrom, cfg.SMTP.SMTPPassWord, cfg.SMTP.SMTPHost, cfg.SMTP.SMTPPort)
 	otpService := service.NewOTPService(otpRepo, emailService)
 	adService := service.NewadvertisementService(adRepo)
-	imageService := service.NewimageService(cfg.StoragePath, cfg.BaseURL)
+	imageService := service.NewimageService(cfg.ImageStoragePath, cfg.BaseURL)
 
 	return &Store{
 		User:               userRepo,

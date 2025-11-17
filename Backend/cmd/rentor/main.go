@@ -103,7 +103,7 @@ func main() {
 	// 8. HTTP handlers registration
 	// ============================================
 
-	httpserver.RegisterRoutes(router, dataStore, cfg.Auth.OTPLength, cfg.Auth.OTPExpirationMinutes, cfg.Auth.OTPMaxAttempts)
+	httpserver.RegisterRoutes(router, dataStore, cfg)
 
 	logger.Info("HTTP handlers registered")
 
