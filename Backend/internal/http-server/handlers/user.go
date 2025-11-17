@@ -48,6 +48,7 @@ func (h *UserProfileHandler) GetUserProfile(w http.ResponseWriter, r *http.Reque
 	writeJSON(w, http.StatusOK, &models.GetUserProfileOutput{
 		UserID:     user.UserID,
 		Email:      user.Email,
+		Phone:      user.Phone,
 		FirstName:  profile.FirstName,
 		Surname:    profile.Surname,
 		Patronymic: profile.Patronymic,
@@ -94,6 +95,7 @@ func (h *UserProfileHandler) UpdateUserProfile(w http.ResponseWriter, r *http.Re
 	writeJSON(w, http.StatusOK, &models.GetUserProfileOutput{
 		UserID:     user.UserID,
 		Email:      user.Email,
+		Phone:      user.Phone,
 		FirstName:  profile.FirstName,
 		Surname:    profile.Surname,
 		Patronymic: profile.Patronymic,
