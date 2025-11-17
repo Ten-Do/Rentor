@@ -5,3 +5,11 @@ http_server:
   port: 8080
   timeout_seconds: 4s # timeout for http server
   idle_timeout_seconds: 60s # idle timeout for connection
+
+auth:
+  jwt_secret: "your-super-secret-key-change-in-production-at-least-32-chars"
+  access_token_ttl: 15m # 15 minutes
+  refresh_token_ttl: 168h # 7 days
+  otp_length: 6
+  otp_expiration_minutes: 10
+  otp_max_attempts: 5

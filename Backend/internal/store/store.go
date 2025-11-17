@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 
+	"rentor/internal/config"
 	"rentor/internal/repository"
 	"rentor/internal/service"
 )
@@ -11,34 +12,41 @@ import (
 // This is the central place for initializing all layers of the application
 type Store struct {
 	// Repositories (working with DB)
-	User          repository.UserRepository          // User repository
-	UserProfile   repository.UserProfileRepository   // User profile repository
-	Advertisement repository.AdvertisementRepository // Advertisement repository
+	User        repository.UserRepository
+	UserProfile repository.UserProfileRepository
+	OTP         repository.OTPRepository
 
 	// Services (business logic)
-	UserService          service.UserService          // User service
-	UserProfileService   service.UserProfileService   // User profile service
-	AdvertisementService service.AdvertisementService // Advertisement service
+	UserService        service.UserService
+	UserProfileService service.UserProfileService
+	OTPService         service.OTPService
+	JWTService         service.JWTService
 }
 
 // NewStore creates a new store with initialized layers
-func NewStore(db *sql.DB) *Store {
+func NewStore(db *sql.DB, cfg *config.Auth) *Store {
 	// Create repositories
 	userRepo := repository.NewUserRepository(db)
 	userProfileRepo := repository.NewUserProfileRepository(db)
-	advertisementRepo := repository.NewAdvertisementRepository(db)
+	otpRepo := repository.NewOTPRepository(db)
 
 	// Create services, passing repositories to them
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(userRepo, userProfileRepo)
 	userProfileService := service.NewUserProfileService(userProfileRepo)
-	advertisementService := service.NewAdvertisementService(advertisementRepo)
+	otpService := service.NewOTPService(otpRepo)
+	jwtService := service.NewJWTService(
+		cfg.JWTSecret,
+		cfg.AccessTokenTTL,
+		cfg.RefreshTokenTTL,
+	)
 
 	return &Store{
-		User:                 userRepo,
-		UserProfile:          userProfileRepo,
-		Advertisement:        advertisementRepo,
-		UserService:          userService,
-		UserProfileService:   userProfileService,
-		AdvertisementService: advertisementService,
+		User:               userRepo,
+		UserProfile:        userProfileRepo,
+		OTP:                otpRepo,
+		UserService:        userService,
+		UserProfileService: userProfileService,
+		OTPService:         otpService,
+		JWTService:         jwtService,
 	}
 }

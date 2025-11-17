@@ -10,6 +10,9 @@ import (
 	"time"
 
 	"rentor/internal/config"
+	"rentor/internal/store"
+
+	httpserver "rentor/internal/http-server"
 	mwLogger "rentor/internal/http-server/middleware"
 	"rentor/internal/logger"
 	"rentor/internal/storage"
@@ -34,7 +37,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	logger.Info("Application started",
+	logger.Info("Config loaded successfully",
 		logger.Field("env", cfg.Env),
 		logger.Field("storage_path", cfg.StoragePath),
 		logger.Field("http_host", cfg.HTTPServer.Host),
@@ -68,20 +71,31 @@ func main() {
 	// Store includes:
 	// - Repositories (working with DB)
 	// - Services (business logic)
+	dataStore := store.NewStore(db, &cfg.Auth)
+
+	logger.Info("Store initialized")
 
 	// ============================================
 	// 6. Routes registration
 	// ============================================
 	router := chi.NewRouter()
 
+	logger.Info("HTTP router initialized")
+
 	// ============================================
 	// 7. Middlewares registration
 	// ============================================
 	router.Use(mwLogger.LoggingMiddleware())
 
+	logger.Info("HTTP middlewares registered")
+
 	// ============================================
 	// 8. HTTP handlers registration
 	// ============================================
+
+	httpserver.RegisterRoutes(router, dataStore, cfg.Auth.OTPLength, cfg.Auth.OTPExpirationMinutes, cfg.Auth.OTPMaxAttempts)
+
+	logger.Info("HTTP handlers registered")
 
 	// ============================================
 	// 9. Server start

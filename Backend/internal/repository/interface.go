@@ -1,6 +1,9 @@
 package repository
 
-import "rentor/internal/models"
+import (
+	"rentor/internal/models"
+	"time"
+)
 
 // UserRepository interface for working with users in the DB
 type UserRepository interface {
@@ -25,6 +28,17 @@ type UserProfileRepository interface {
 	GetPageUserProfiles(offset, limit int) ([]*models.UserProfile, error) // retrieves user profiles with pagination
 	UpdateUserProfile(id int, profile *models.UserProfile) error          // updates user profile details
 	DeleteUserProfileByID(id int) error                                   // deletes a user profile by its ID
+}
+
+// OTPRepository interface for working with OTP codes in the DB
+type OTPRepository interface {
+	CreateOTP(userID int, email string, codeHash string, maxAttempts int, expiresAt time.Time) error
+	GetOTPByEmail(email string) (*models.OTPCode, error)
+	GetOTPByID(id int) (*models.OTPCode, error)
+	UpdateOTPAttempts(id int, attempts int) error
+	DeleteOTPByID(id int) error
+	DeleteOTPByEmail(email string) error
+	DeleteExpiredOTPs(now time.Time) error
 }
 
 // AdvertisementRepository interface for working with advertisements in the DB
