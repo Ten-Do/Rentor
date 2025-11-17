@@ -4,10 +4,6 @@ import (
 	"net/smtp"
 )
 
-type EmailService interface {
-	SendEmail(to, subject, body string) error
-}
-
 type emailService struct {
 	from     string
 	password string

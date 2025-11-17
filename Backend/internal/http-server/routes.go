@@ -27,13 +27,13 @@ func RegisterRoutes(router chi.Router, dataStore *store.Store, otpLen int, otpEx
 	router.With(authMiddleware).Get("/user/profile", userProfileHandler.GetUserProfile)
 	router.With(authMiddleware).Put("/user/profile", userProfileHandler.UpdateUserProfile)
 
-	// Advertisements (for now, not protected)
+	// Advertisements
 	router.Get("/advertisements", handlers.ListAdvertisements)
-	router.Post("/advertisements", handlers.CreateAdvertisement)
+	router.With(authMiddleware).Post("/advertisements", handlers.CreateAdvertisement)
 	router.Get("/advertisements/{id}", handlers.GetAdvertisement)
-	router.Put("/advertisements/{id}", handlers.UpdateAdvertisement)
-	router.Delete("/advertisements/{id}", handlers.DeleteAdvertisement)
-
-	router.Post("/advertisements/{id}/images", handlers.AddAdImages)
-	router.Delete("/advertisements/{ad_id}/images/{image_id}", handlers.DeleteAdImage)
+	router.With(authMiddleware).Put("/advertisements/{id}", handlers.UpdateAdvertisement)
+	router.With(authMiddleware).Delete("/advertisements/{id}", handlers.DeleteAdvertisement)
+	router.With(authMiddleware).Post("/advertisements/{id}/images", handlers.AddAdImages)
+	router.With(authMiddleware).Delete("/advertisements/{ad_id}/images/{image_id}", handlers.DeleteAdImage)
+	router.With(authMiddleware).Get("/advertisements/my", handlers.GetMyAdvertisements)
 }

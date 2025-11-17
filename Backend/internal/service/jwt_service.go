@@ -7,17 +7,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-// JWTService handles JWT token operations
-type JWTService interface {
-	GenerateAccessToken(userID int, email string) (string, error)
-	GenerateRefreshToken(userID int, email string) (string, error)
-	ValidateAccessToken(tokenString string) (*JWTClaims, error)
-	ValidateRefreshToken(tokenString string) (*JWTClaims, error)
-	RefreshAccessToken(refreshToken string) (string, error)
-	GetRefreshTokenTTL() time.Duration
-	GetAccessTokenTTL() time.Duration
-}
-
 // JWTClaims custom claims structure
 type JWTClaims struct {
 	UserID int    `json:"user_id"`

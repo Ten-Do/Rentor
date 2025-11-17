@@ -6,7 +6,7 @@
 -- we store advertisement linked to user profiles
 CREATE TABLE IF NOT EXISTS advertisement (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_profile_id INTEGER NOT NULL, -- Foreign key to user_profile table
+    user_id INTEGER NOT NULL, -- Foreign key to user table
     title TEXT, -- Title of the advertisement
     description TEXT, -- Detailed description of the advertisement
     price NUMERIC, -- Price of the placement
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS advertisement (
     status TEXT, -- Status of the advertisement (active|paused)
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of advertisement creation
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of last advertisement update
-    FOREIGN KEY (user_profile_id) REFERENCES user_profile(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
 -- table to store photos related to advertisements (images stored as URLs that point to external storage)

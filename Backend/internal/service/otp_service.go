@@ -13,13 +13,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// OTPService handles OTP generation, storage, and verification
-type OTPService interface {
-	GenerateAndStoreOTP(userID int, email string, otpLength int, expirationMinutes int, maxAttempts int) error
-	VerifyOTP(email string, otpCode string, maxAttempts int) (int, error) // returns userID
-	CleanupExpiredOTPs() error
-}
-
 type otpService struct {
 	repo         repository.OTPRepository
 	emailService EmailService

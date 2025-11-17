@@ -4,124 +4,252 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"time"
 
 	"rentor/internal/logger"
+	"rentor/internal/middleware"
+	"rentor/internal/models"
+	"rentor/internal/service"
 
 	"github.com/go-chi/chi/v5"
 )
 
-type adCreateReq struct {
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Price       float64  `json:"price"`
-	Type        string   `json:"type"`
-	Rooms       string   `json:"rooms"`
-	City        string   `json:"city"`
-	Address     string   `json:"address"`
-	Latitude    *float64 `json:"latitude,omitempty"`
-	Longitude   *float64 `json:"longitude,omitempty"`
-	Square      *float64 `json:"square,omitempty"`
+type AdvertisementHandlers struct {
+	adService service.AdvertisementService
+	imageSvc  service.ImageService
 }
 
-// ListAdvertisements handles GET /advertisements
-func ListAdvertisements(w http.ResponseWriter, r *http.Request) {
+func NewAdvertisementHandlers(adService service.AdvertisementService) *AdvertisementHandlers {
+	return &AdvertisementHandlers{adService: adService}
+}
+
+// ===========================
+// CREATE
+// ===========================
+func (h *AdvertisementHandlers) CreateAdvertisement(w http.ResponseWriter, r *http.Request) {
+	userID, err := middleware.GetUserIDFromContext(r)
+	if err != nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+		return
+	}
+
+	var input models.CreateAdvertisementInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, `{"error":"invalid json"}`, http.StatusBadRequest)
+		return
+	}
+
+	adID, err := h.adService.CreateAdvertisement(userID, &input)
+	if err != nil {
+		logger.Error("create ad failed", logger.Field("error", err.Error()))
+		http.Error(w, `{"error":"cannot create advertisement"}`, http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, adID)
+}
+
+// ===========================
+// GET /advertisements/{id}
+// ===========================
+func (h *AdvertisementHandlers) GetAdvertisement(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, _ := strconv.Atoi(idStr)
+
+	ad, err := h.adService.GetAdvertisement(id)
+	if err != nil {
+		http.Error(w, `{"error":"not found"}`, http.StatusNotFound)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, ad)
+}
+
+// ===========================
+// LIST WITH FILTERS
+// ===========================
+func (h *AdvertisementHandlers) ListAdvertisements(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
-	page := 1
-	limit := 20
-	if p := q.Get("page"); p != "" {
-		if n, err := strconv.Atoi(p); err == nil && n > 0 {
-			page = n
-		}
-	}
-	if l := q.Get("limit"); l != "" {
-		if n, err := strconv.Atoi(l); err == nil && n > 0 {
-			limit = n
-		}
+
+	filters := &models.AdFilters{
+		Page:  parseIntDefault(q.Get("page"), 1),
+		Limit: parseIntDefault(q.Get("limit"), 20),
 	}
 
-	resp := map[string]interface{}{
-		"data": []interface{}{},
-		"pagination": map[string]interface{}{
-			"page":        page,
-			"limit":       limit,
-			"total":       0,
-			"total_pages": 0,
-		},
+	if v := q.Get("minPrice"); v != "" {
+		val := parseFloatPointer(v)
+		filters.MinPrice = val
+	}
+	if v := q.Get("maxPrice"); v != "" {
+		val := parseFloatPointer(v)
+		filters.MaxPrice = val
+	}
+	if v := q.Get("type"); v != "" {
+		filters.Type = &v
+	}
+	if v := q.Get("rooms"); v != "" {
+		filters.Rooms = &v
+	}
+	if v := q.Get("city"); v != "" {
+		filters.City = &v
+	}
+	if v := q.Get("keywords"); v != "" {
+		filters.Keywords = &v
 	}
 
-	logger.Info("ListAdvertisements called", logger.Field("page", page), logger.Field("limit", limit))
+	list, err := h.adService.GetAdvertisements(filters)
+	if err != nil {
+		http.Error(w, `{"error":"failed to fetch advertisements"}`, http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, list)
+}
+
+// ===========================
+// /advertisements/my
+// ===========================
+func (h *AdvertisementHandlers) GetMyAdvertisements(w http.ResponseWriter, r *http.Request) {
+	userID, err := middleware.GetUserIDFromContext(r)
+	if err != nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+		return
+	}
+
+	q := r.URL.Query()
+	page := parseIntDefault(q.Get("page"), 1)
+	limit := parseIntDefault(q.Get("limit"), 20)
+
+	list, err := h.adService.GetMyAdvertisements(userID, page, limit)
+	if err != nil {
+		http.Error(w, `{"error":"failed to fetch my ads"}`, http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, list)
+}
+
+// ===========================
+// UPDATE
+// ===========================
+func (h *AdvertisementHandlers) UpdateAdvertisement(w http.ResponseWriter, r *http.Request) {
+	userID, err := middleware.GetUserIDFromContext(r)
+	if err != nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+		return
+	}
+
+	adID, _ := strconv.Atoi(chi.URLParam(r, "id"))
+
+	var input models.UpdateAdvertisementInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, `{"error":"invalid json"}`, http.StatusBadRequest)
+		return
+	}
+
+	err = h.adService.UpdateAdvertisement(adID, userID, &input)
+	if err != nil {
+		http.Error(w, `{"error":"cannot update advertisement"}`, http.StatusForbidden)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
+}
+
+// ===========================
+// DELETE
+// ===========================
+func (h *AdvertisementHandlers) DeleteAdvertisement(w http.ResponseWriter, r *http.Request) {
+	userID, err := middleware.GetUserIDFromContext(r)
+	if err != nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+		return
+	}
+
+	adID, _ := strconv.Atoi(chi.URLParam(r, "id"))
+
+	err = h.adService.DeleteAdvertisement(userID, adID)
+	if err != nil {
+		http.Error(w, `{"error":"cannot delete"}`, http.StatusForbidden)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
+}
+
+// ===========================
+// ADD IMAGES
+// ===========================
+func (h *AdvertisementHandlers) AddAdImages(w http.ResponseWriter, r *http.Request) {
+	userID, err := middleware.GetUserIDFromContext(r)
+	if err != nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+		return
+	}
+
+	adID, _ := strconv.Atoi(chi.URLParam(r, "id"))
+
+	// Parse multipart form
+	r.ParseMultipartForm(20 << 20) // 20 MB limit
+
+	files := r.MultipartForm.File["images"]
+	if len(files) == 0 {
+		http.Error(w, `{"error":"no images provided"}`, http.StatusBadRequest)
+		return
+	}
+
+	// Сохраняем изображения через ImageService
+	urls, err := h.imageadService.SaveAdvertisementImages(adID, files)
+	if err != nil {
+		http.Error(w, `{"error":"cannot save images"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// Передаём в AdvertisementService для сохранения URL в БД
+	resp, err := h.adadService.AddImages(userID, adID, urls)
+	if err != nil {
+		http.Error(w, `{"error":"cannot link images"}`, http.StatusForbidden)
+		return
+	}
+
 	writeJSON(w, http.StatusOK, resp)
 }
 
-// CreateAdvertisement handles POST /advertisements
-func CreateAdvertisement(w http.ResponseWriter, r *http.Request) {
-	var req adCreateReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid request payload")
+// ===========================
+// DELETE IMAGE
+// ===========================
+func (h *AdvertisementHandlers) DeleteAdImage(w http.ResponseWriter, r *http.Request) {
+	userID, err := middleware.GetUserIDFromContext(r)
+	if err != nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 
-	// Basic validation
-	if req.Title == "" || req.Description == "" || req.Price < 0 || req.Type == "" || req.Rooms == "" || req.City == "" || req.Address == "" {
-		writeError(w, http.StatusBadRequest, "missing required fields")
+	adID, _ := strconv.Atoi(chi.URLParam(r, "ad_id"))
+	imgID, _ := strconv.Atoi(chi.URLParam(r, "image_id"))
+
+	err = h.adService.DeleteImage(userID, adID, imgID)
+	if err != nil {
+		http.Error(w, `{"error":"delete failed"}`, http.StatusForbidden)
 		return
 	}
 
-	ad := map[string]interface{}{
-		"id":             strconv.FormatInt(time.Now().UnixNano(), 10),
-		"title":          req.Title,
-		"description":    req.Description,
-		"price":          req.Price,
-		"type":           req.Type,
-		"rooms":          req.Rooms,
-		"city":           req.City,
-		"address":        req.Address,
-		"latitude":       req.Latitude,
-		"longitude":      req.Longitude,
-		"square":         req.Square,
-		"image_urls":     []string{},
-		"landlord_name":  "John Doe",
-		"landlord_email": "john.doe@example.com",
-		"landlord_phone": "+70000000000",
-		"status":         "active",
-		"created_at":     time.Now().Format(time.RFC3339),
+	writeJSON(w, http.StatusOK, map[string]string{"status": "image deleted"})
+}
+
+// ===========================
+// Helpers
+// ===========================
+func parseIntDefault(s string, def int) int {
+	if v, err := strconv.Atoi(s); err == nil {
+		return v
 	}
-
-	logger.Info("CreateAdvertisement called", logger.Field("title", req.Title))
-	writeJSON(w, http.StatusCreated, ad)
+	return def
 }
 
-// GetAdvertisement handles GET /advertisements/{id}
-func GetAdvertisement(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	// For now return 404 (not found)
-	logger.Info("GetAdvertisement called", logger.Field("id", id))
-	writeError(w, http.StatusNotFound, "advertisement not found")
-}
-
-// UpdateAdvertisement handles PUT /advertisements/{id}
-func UpdateAdvertisement(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	logger.Info("UpdateAdvertisement called", logger.Field("id", id))
-	// Not implemented - return 501
-	writeError(w, http.StatusNotImplemented, "not implemented")
-}
-
-// DeleteAdvertisement handles DELETE /advertisements/{id}
-func DeleteAdvertisement(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	logger.Info("DeleteAdvertisement called", logger.Field("id", id))
-	// Deletion successful (stub) - return 204 No Content
-	w.WriteHeader(http.StatusNoContent)
-}
-
-// AddAdImages handles POST /advertisements/{id}/images
-func AddAdImages(w http.ResponseWriter, r *http.Request) {
-	writeError(w, http.StatusNotImplemented, "image upload not implemented")
-}
-
-// DeleteAdImage handles DELETE /advertisements/{ad_id}/images/{image_id}
-func DeleteAdImage(w http.ResponseWriter, r *http.Request) {
-	writeError(w, http.StatusNotImplemented, "delete image not implemented")
+func parseFloatPointer(s string) *float64 {
+	val, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return nil
+	}
+	return &val
 }
