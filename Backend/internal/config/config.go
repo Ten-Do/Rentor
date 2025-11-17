@@ -95,5 +95,9 @@ func LoadConfig() (*Config, error) {
 		}
 	}
 
+	if os.Getenv("DOCKER") == "true" {
+		config.HTTPServer.Host = "0.0.0.0"
+	}
+
 	return &config, nil
 }

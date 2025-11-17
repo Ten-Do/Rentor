@@ -39,4 +39,6 @@ RUN mkdir -p /rentor/storage
 # Ensure the app knows where to read config from
 ENV CONFIG_PATH=/rentor/config/local.yaml
 
+EXPOSE 8080
+
 CMD ["./main"]
