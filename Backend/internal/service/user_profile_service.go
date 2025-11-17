@@ -71,9 +71,9 @@ func (s *userProfileService) UpdateUserProfile(userID int, input *models.UpdateU
 func (s *userProfileService) CreateDefaultUserProfile(userID int) error {
 	profile := &models.UserProfile{
 		UserID:     userID,
-		FirstName:  "",
-		Surname:    "",
-		Patronymic: "",
+		FirstName:  nil,
+		Surname:    nil,
+		Patronymic: nil,
 	}
 	_, err := s.userProfileRepo.CreateUserProfile(profile)
 	return err

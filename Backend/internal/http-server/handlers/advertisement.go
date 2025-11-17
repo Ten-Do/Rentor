@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"rentor/internal/http-server/middleware"
 	"rentor/internal/logger"
-	"rentor/internal/middleware"
 	"rentor/internal/models"
 	"rentor/internal/service"
 
@@ -41,14 +41,14 @@ func (h *AdvertisementHandlers) CreateAdvertisement(w http.ResponseWriter, r *ht
 		return
 	}
 
-	adID, err := h.adService.CreateAdvertisement(userID, &input)
+	res, err := h.adService.CreateAdvertisement(userID, &input)
 	if err != nil {
 		logger.Error("create ad failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"cannot create advertisement"}`, http.StatusInternalServerError)
 		return
 	}
 
-	writeJSON(w, http.StatusOK, adID)
+	writeJSON(w, http.StatusOK, res)
 }
 
 // ===========================
@@ -201,14 +201,14 @@ func (h *AdvertisementHandlers) AddAdImages(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Сохраняем изображения через ImageService
-	urls, err := h.imageadService.SaveAdvertisementImages(adID, files)
+	urls, err := h.imageSvc.SaveAdvertisementImages(adID, files)
 	if err != nil {
 		http.Error(w, `{"error":"cannot save images"}`, http.StatusInternalServerError)
 		return
 	}
 
 	// Передаём в AdvertisementService для сохранения URL в БД
-	resp, err := h.adadService.AddImages(userID, adID, urls)
+	resp, err := h.adService.AddImages(userID, adID, urls)
 	if err != nil {
 		http.Error(w, `{"error":"cannot link images"}`, http.StatusForbidden)
 		return

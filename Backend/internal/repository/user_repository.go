@@ -71,7 +71,7 @@ func (r *userRepository) CreateUser(phone string, email string) (int, error) {
 func (r *userRepository) GetUserByID(id int) (*models.User, error) {
 	user := &models.User{}
 	err := r.db.QueryRow(
-		"SELECT id, COALESCE(email, ''), COALESCE(phone_number, ''), created_at, updated_at FROM user WHERE id = ?",
+		"SELECT id, email, phone_number, created_at, updated_at FROM user WHERE id = ?",
 		id,
 	).Scan(&user.UserID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
 
@@ -96,7 +96,7 @@ func (r *userRepository) GetUserByEmail(email string) (*models.User, error) {
 
 	user := &models.User{}
 	err = r.db.QueryRow(
-		"SELECT id, COALESCE(email, ''), COALESCE(phone_number, ''), created_at, updated_at FROM user WHERE email = ?",
+		"SELECT id, email, phone_number, created_at, updated_at FROM user WHERE email = ?",
 		email,
 	).Scan(&user.UserID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
 
@@ -120,7 +120,7 @@ func (r *userRepository) GetUserByPhone(phone string) (*models.User, error) {
 
 	user := &models.User{}
 	err = r.db.QueryRow(
-		"SELECT id, COALESCE(email, ''), COALESCE(phone_number, ''), created_at, updated_at FROM user WHERE phone_number = ?",
+		"SELECT id, email, phone_number, created_at, updated_at FROM user WHERE phone_number = ?",
 		phone,
 	).Scan(&user.UserID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
 
@@ -136,7 +136,7 @@ func (r *userRepository) GetUserByPhone(phone string) (*models.User, error) {
 
 // GetAllUsers retrieves all users
 func (r *userRepository) GetAllUsers() ([]*models.User, error) {
-	rows, err := r.db.Query("SELECT id, COALESCE(email, ''), COALESCE(phone_number, ''), created_at, updated_at FROM user")
+	rows, err := r.db.Query("SELECT id, email, phone_number, created_at, updated_at FROM user")
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +157,7 @@ func (r *userRepository) GetAllUsers() ([]*models.User, error) {
 // GetPageUsers retrieves users with pagination
 func (r *userRepository) GetPageUsers(offset, limit int) ([]*models.User, error) {
 	rows, err := r.db.Query(
-		"SELECT id, COALESCE(email, ''), COALESCE(phone_number, ''), created_at, updated_at FROM user LIMIT ? OFFSET ?",
+		"SELECT id, email, phone_number, created_at, updated_at FROM user LIMIT ? OFFSET ?",
 		limit,
 		offset,
 	)
@@ -188,8 +188,8 @@ func (r *userRepository) UpdateUser(id int, user *models.User) error {
 	user.Email = toLowerRegister(user.Email)
 
 	// validate phone
-	if user.Phone != "" {
-		err = validatePhone(user.Phone)
+	if user.Phone != nil {
+		err = validatePhone(*user.Phone)
 		if err != nil {
 			return err
 		}

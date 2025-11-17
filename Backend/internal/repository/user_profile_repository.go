@@ -19,7 +19,7 @@ func NewUserProfileRepository(db *sql.DB) UserProfileRepository {
 // CreateUserProfile creates a new user profile
 func (r *userProfileRepository) CreateUserProfile(profile *models.UserProfile) (int, error) {
 	res, err := r.db.Exec(
-		"INSERT INTO user_profile (user_id, first_name, surname, patronymic) VALUES (?, ?, ?, ?)",
+		"INSERT INTO user_profile (user_id, first_name, surname, patronymic) VALUES(?, ?, ?, ?)",
 		profile.UserID,
 		profile.FirstName,
 		profile.Surname,
@@ -41,7 +41,7 @@ func (r *userProfileRepository) CreateUserProfile(profile *models.UserProfile) (
 func (r *userProfileRepository) GetUserProfileByID(id int) (*models.UserProfile, error) {
 	profile := &models.UserProfile{}
 	err := r.db.QueryRow(
-		"SELECT id, user_id, COALESCE(first_name, ''), COALESCE(surname, ''), COALESCE(patronymic, ''), created_at, updated_at FROM user_profile WHERE id = ?",
+		"SELECT id, user_id, first_name, surname, patronymic, created_at, updated_at FROM user_profile WHERE id = ?",
 		id,
 	).Scan(&profile.ID, &profile.UserID, &profile.FirstName, &profile.Surname, &profile.Patronymic, &profile.CreatedAt, &profile.UpdatedAt)
 
@@ -59,7 +59,7 @@ func (r *userProfileRepository) GetUserProfileByID(id int) (*models.UserProfile,
 func (r *userProfileRepository) GetUserProfileByUserID(userID int) (*models.UserProfile, error) {
 	profile := &models.UserProfile{}
 	err := r.db.QueryRow(
-		"SELECT id, user_id, COALESCE(first_name, ''), COALESCE(surname, ''), COALESCE(patronymic, ''), created_at, updated_at FROM user_profile WHERE user_id = ?",
+		"SELECT id, user_id, first_name, surname, patronymic, created_at, updated_at FROM user_profile WHERE user_id = ?",
 		userID,
 	).Scan(&profile.ID, &profile.UserID, &profile.FirstName, &profile.Surname, &profile.Patronymic, &profile.CreatedAt, &profile.UpdatedAt)
 
@@ -76,7 +76,7 @@ func (r *userProfileRepository) GetUserProfileByUserID(userID int) (*models.User
 // GetAllUserProfiles retrieves all user profiles
 func (r *userProfileRepository) GetAllUserProfiles() ([]*models.UserProfile, error) {
 	rows, err := r.db.Query(
-		"SELECT id, user_id, COALESCE(first_name, ''), COALESCE(surname, ''), COALESCE(patronymic, ''), created_at, updated_at FROM user_profile",
+		"SELECT id, user_id, first_name, surname, patronymic, created_at, updated_at FROM user_profile",
 	)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (r *userProfileRepository) GetAllUserProfiles() ([]*models.UserProfile, err
 // GetPageUserProfiles retrieves user profiles with pagination
 func (r *userProfileRepository) GetPageUserProfiles(offset, limit int) ([]*models.UserProfile, error) {
 	rows, err := r.db.Query(
-		"SELECT id, user_id, COALESCE(first_name, ''), COALESCE(surname, ''), COALESCE(patronymic, ''), created_at, updated_at FROM user_profile LIMIT ? OFFSET ?",
+		"SELECT id, user_id, first_name, surname, patronymic, created_at, updated_at FROM user_profile LIMIT ? OFFSET ?",
 		limit,
 		offset,
 	)

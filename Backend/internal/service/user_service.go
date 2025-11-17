@@ -23,7 +23,7 @@ func NewUserService(repo repository.UserRepository, profileRepo repository.UserP
 
 // RegisterUser creates a new user (with validation)
 func (s *userService) RegisterUser(input *models.CreateUserInput) (int, error) {
-	if input.Email == "" && input.Phone == "" {
+	if input.Email == "" && input.Phone == nil {
 		return 0, errors.New("email or phone required")
 	}
 
@@ -35,14 +35,14 @@ func (s *userService) RegisterUser(input *models.CreateUserInput) (int, error) {
 		}
 	}
 
-	if input.Phone != "" {
-		existing, _ := s.repo.GetUserByPhone(input.Phone)
+	if input.Phone != nil {
+		existing, _ := s.repo.GetUserByPhone(*input.Phone)
 		if existing != nil {
 			return 0, errors.New("user with this phone already exists")
 		}
 	}
 
-	userID, err := s.repo.CreateUser(input.Phone, input.Email)
+	userID, err := s.repo.CreateUser(*input.Phone, input.Email)
 	if err != nil {
 		return 0, err
 	}
@@ -50,9 +50,9 @@ func (s *userService) RegisterUser(input *models.CreateUserInput) (int, error) {
 	// Create default profile
 	profile := &models.UserProfile{
 		UserID:     userID,
-		FirstName:  "",
-		Surname:    "",
-		Patronymic: "",
+		FirstName:  nil,
+		Surname:    nil,
+		Patronymic: nil,
 	}
 	_, err = s.profileRepo.CreateUserProfile(profile)
 	if err != nil {
@@ -100,9 +100,9 @@ func (s *userService) FindOrCreateUserByEmail(email string) (*models.User, error
 	// Create default profile
 	profile := &models.UserProfile{
 		UserID:     userID,
-		FirstName:  "",
-		Surname:    "",
-		Patronymic: "",
+		FirstName:  nil,
+		Surname:    nil,
+		Patronymic: nil,
 	}
 	_, _ = s.profileRepo.CreateUserProfile(profile)
 

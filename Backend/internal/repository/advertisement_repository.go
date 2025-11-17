@@ -144,7 +144,10 @@ func (r *AdRepository) GetAdvertisement(id int) (*models.GetAd, error) {
         WHERE id = ?
     `, userID).Scan(&ad.LandlordEmail, &ad.LandlordPhone)
 	if err != nil {
-		return nil, errors.New("user not found")
+		if err == sql.ErrNoRows {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
 	}
 
 	// фото
