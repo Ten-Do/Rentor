@@ -33,8 +33,9 @@ COPY --from=builder /build/migrations ./migrations
 # Copy config directory from the builder stage so the runtime can read ./config/local.yaml
 COPY --from=builder /build/config ./config
 
-# Create storage directory expected by the app (storage_path: ./storage/storage.db)
+# Create storage directory expected by the app
 RUN mkdir -p /rentor/storage
+RUN mkdir -p /rentor/storage/images
 
 # Ensure the app knows where to read config from
 ENV CONFIG_PATH=/rentor/config/local.yaml
