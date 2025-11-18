@@ -27,7 +27,7 @@ export const SearchForm = () => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
         const params = new URLSearchParams()
-        
+
         const keywords = formData.get('keywords')?.toString().trim()
         const city = formData.get('city')?.toString().trim()
         const type = formData.get('type')?.toString()
@@ -120,7 +120,7 @@ export const SearchForm = () => {
                     Search
                 </Button>
                 <Button
-                    type="button"
+                    type="reset"
                     variant="outline"
                     colorScheme="neutral"
                     onClick={() => {

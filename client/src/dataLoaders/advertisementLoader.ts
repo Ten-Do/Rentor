@@ -27,7 +27,7 @@ interface BackendAdvertisementResponse {
   landlordName: string | null
   landlordEmail: string
   landlordPhone: string | null
-  imageUrls: BackendImageUrl[]
+  imageUrls: BackendImageUrl[] | null
 }
 
 export const advertisementLoader = async ({
@@ -44,6 +44,8 @@ export const advertisementLoader = async ({
   const endpoint = `/advertisements/${id}`
   const backendAd = await $api.get<BackendAdvertisementResponse>(endpoint)
 
+  const imageUrls = backendAd.imageUrls || []
+
   const advertisement: Advertisement = {
     id: String(backendAd.id),
     title: backendAd.title,
@@ -52,13 +54,13 @@ export const advertisementLoader = async ({
     type: backendAd.type as Advertisement['type'],
     rooms: backendAd.rooms as Advertisement['rooms'],
     city: backendAd.city,
-    image_url: backendAd.imageUrls[0]?.imageUrl || null,
+    image_url: imageUrls[0]?.imageUrl || null,
     address: backendAd.address,
     latitude: backendAd.latitude,
     longitude: backendAd.longitude,
     square: backendAd.square || null,
-    image_urls: backendAd.imageUrls.map((img) => img.imageUrl),
-    images: backendAd.imageUrls.map((img) => ({
+    image_urls: imageUrls.map((img) => img.imageUrl),
+    images: imageUrls.map((img) => ({
       id: String(img.imageId),
       url: img.imageUrl,
     })),
