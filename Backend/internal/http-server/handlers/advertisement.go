@@ -233,6 +233,9 @@ func (h *AdvertisementHandlers) AddAdImages(w http.ResponseWriter, r *http.Reque
 	// Передаём в AdvertisementService для сохранения URL в БД
 	resp, err := h.adService.AddImages(userID, adID, urls)
 	if err != nil {
+		for i := range urls {
+			_ = h.imageSvc.DeleteImage(urls[i])
+		}
 		logger.Error("add images failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"cannot link images"}`, http.StatusForbidden)
 		return
@@ -255,7 +258,21 @@ func (h *AdvertisementHandlers) DeleteAdImage(w http.ResponseWriter, r *http.Req
 	adID, _ := strconv.Atoi(chi.URLParam(r, "ad_id"))
 	imgID, _ := strconv.Atoi(chi.URLParam(r, "image_id"))
 
+	imgPath, err := h.adService.GetImagePath(adID, imgID)
+	if err != nil {
+		logger.Error("delete image failed", logger.Field("error", err.Error()))
+		http.Error(w, `{"error":"not found"}`, http.StatusNotFound)
+		return
+	}
+
 	err = h.adService.DeleteImage(userID, adID, imgID)
+	if err != nil {
+		logger.Error("delete image failed", logger.Field("error", err.Error()))
+		http.Error(w, `{"error":"delete failed"}`, http.StatusForbidden)
+		return
+	}
+
+	err = h.imageSvc.DeleteImage(imgPath)
 	if err != nil {
 		logger.Error("delete image failed", logger.Field("error", err.Error()))
 		http.Error(w, `{"error":"delete failed"}`, http.StatusForbidden)

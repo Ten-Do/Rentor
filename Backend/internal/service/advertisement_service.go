@@ -132,3 +132,7 @@ func (s *advertisementService) DeleteImage(userID, adID, imageID int) error {
 
 	return s.adRepo.DeleteAdvertisementImage(adID, imageID)
 }
+
+func (s *advertisementService) GetImagePath(adID, imageID int) (string, error) {
+	return s.adRepo.GetImagePath(adID, imageID)
+}

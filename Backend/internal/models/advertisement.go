@@ -68,18 +68,23 @@ type GetAd struct {
 	LandlordEmail string  `json:"landlordEmail"`
 	LandlordPhone *string `json:"landlordPhone"`
 
-	ImageUrls []string `json:"imageUrls"`
+	ImageUrls []*ImageUrl `json:"imageUrls"`
+}
+
+type ImageUrl struct {
+	ImageId  int    `json:"imageId"`
+	ImageUrl string `json:"imageUrl"`
 }
 
 type AdPreview struct {
-	ID       int     `json:"id"`
-	Title    string  `json:"title"`
-	City     string  `json:"city"`
-	Price    float64 `json:"price"`
-	Type     string  `json:"type"`
-	Rooms    string  `json:"rooms"`
-	Square   float64 `json:"square"`
-	ImageUrl *string `json:"imageUrl"` // первое фото
+	ID       int       `json:"id"`
+	Title    string    `json:"title"`
+	City     string    `json:"city"`
+	Price    float64   `json:"price"`
+	Type     string    `json:"type"`
+	Rooms    string    `json:"rooms"`
+	Square   float64   `json:"square"`
+	ImageUrl *ImageUrl `json:"imageUrl"` // первое фото
 }
 
 type GetAdPreviewsList struct {

@@ -152,7 +152,7 @@ func (r *AdRepository) GetAdvertisement(id int) (*models.GetAd, error) {
 
 	// фото
 	rows, err := r.db.Query(`
-        SELECT photo_url 
+        SELECT id, photo_url 
         FROM advertisement_photos
         WHERE advertisement_id = ?
     `, ad.ID)
@@ -161,13 +161,13 @@ func (r *AdRepository) GetAdvertisement(id int) (*models.GetAd, error) {
 	}
 	defer rows.Close()
 
-	var images []string
+	var images []*models.ImageUrl
 	for rows.Next() {
-		var url string
-		if err := rows.Scan(&url); err != nil {
+		image_url := &models.ImageUrl{}
+		if err := rows.Scan(&image_url.ImageId, &image_url.ImageUrl); err != nil {
 			return nil, err
 		}
-		images = append(images, url)
+		images = append(images, image_url)
 	}
 	ad.ImageUrls = images
 
@@ -245,13 +245,21 @@ func (r *AdRepository) GetAdvertisementsPaged(filters *models.AdFilters) (*model
 			return nil, err
 		}
 
+		ImageUrl := &models.ImageUrl{ImageId: -1, ImageUrl: ""}
+
 		// first photo
 		_ = r.db.QueryRow(`
-            SELECT photo_url
+            SELECT id, photo_url
             FROM advertisement_photos
             WHERE advertisement_id = ?
             LIMIT 1
-        `, item.ID).Scan(&item.ImageUrl)
+        `, item.ID).Scan(&ImageUrl.ImageId, &ImageUrl.ImageUrl)
+
+		if ImageUrl.ImageUrl != "" && ImageUrl.ImageId != -1 {
+			item.ImageUrl = ImageUrl
+		} else {
+			item.ImageUrl = nil
+		}
 
 		list.Items = append(list.Items, item)
 	}
@@ -318,4 +326,10 @@ func (r *AdRepository) DeleteAdvertisementImage(adID, imageID int) error {
         WHERE id = ? AND advertisement_id = ?
     `, imageID, adID)
 	return err
+}
+
+func (r *AdRepository) GetImagePath(adID, imageID int) (string, error) {
+	var path string
+	err := r.db.QueryRow("SELECT photo_url FROM advertisement_photos WHERE id = ? AND advertisement_id = ?", imageID, adID).Scan(&path)
+	return path, err
 }

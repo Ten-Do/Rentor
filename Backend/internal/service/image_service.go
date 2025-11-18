@@ -57,3 +57,23 @@ func (s *imageService) SaveAdvertisementImages(adID int, files []*multipart.File
 
 	return urls, nil
 }
+
+func (s *imageService) DeleteImage(path string) error {
+	// Извлекаем имя файла из URL пути
+	filename := filepath.Base(path)
+
+	// Формируем полный путь к файлу в хранилище
+	fullPath := filepath.Join(s.StoragePath, filename)
+
+	// Проверяем существование файла перед удалением
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		return fmt.Errorf("image not found: %s", filename)
+	}
+
+	// Удаляем файл
+	if err := os.Remove(fullPath); err != nil {
+		return fmt.Errorf("failed to delete image: %v", err)
+	}
+
+	return nil
+}

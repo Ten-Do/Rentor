@@ -54,9 +54,11 @@ type AdvertisementService interface {
 	DeleteAdvertisement(userID, adID int) error
 	AddImages(userID, adID int, urls []string) (*models.ImagesUploadResponse, error)
 	DeleteImage(userID, adID, imageID int) error
+	GetImagePath(adID int, imageID int) (string, error)
 }
 
 // ImageService интерфейс для работы с изображениями
 type ImageService interface {
 	SaveAdvertisementImages(adID int, files []*multipart.FileHeader) ([]string, error)
+	DeleteImage(path string) error
 }

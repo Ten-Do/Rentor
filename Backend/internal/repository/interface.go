@@ -51,4 +51,5 @@ type AdvertisementRepository interface {
 	GetPageUserAdvertisements(userID, offset, limit int) ([]*models.Advertisement, error) // retrieves advertisements for a specific user with pagination
 	UpdateAdvertisement(id int, ad *models.Advertisement) error                           // updates advertisement details
 	DeleteAdvertisementByID(id int) error                                                 // deletes an advertisement by its ID
+	GetImagePath(adID, imageID int) (string, error)
 }
