@@ -5,6 +5,7 @@ import type { Swiper as SwiperType } from 'swiper'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import { Button } from '../../components/Button'
 import { Image } from '../../components/Image'
+import { API_BASE_URL } from '../../utils/constants'
 import 'swiper/swiper.css'
 
 export interface ImageSliderProps {
@@ -75,18 +76,24 @@ export const ImageSlider = ({ images }: ImageSliderProps) => {
               },
             }}
           >
-            {images.map((image, index) => (
-              <SwiperSlide key={index} className="cursor-pointer">
-                <div className="h-full rounded overflow-hidden opacity-50 transition-opacity hover:opacity-75">
-                  <div
-                    role="img"
-                    aria-label={`Thumbnail ${index + 1}`}
-                    className="w-full h-full bg-center bg-cover bg-gray-600"
-                    style={{ backgroundImage: `url('${image}')` }}
-                  />
-                </div>
-              </SwiperSlide>
-            ))}
+            {images.map((image, index) => {
+              const imageUrl =
+                image?.startsWith('http://') || image?.startsWith('https://')
+                  ? image
+                  : `${API_BASE_URL}${image?.startsWith('/') ? image : `/${image}`}`
+              return (
+                <SwiperSlide key={index} className="cursor-pointer">
+                  <div className="h-full rounded overflow-hidden opacity-50 transition-opacity hover:opacity-75">
+                    <div
+                      role="img"
+                      aria-label={`Thumbnail ${index + 1}`}
+                      className="w-full h-full bg-center bg-cover bg-gray-600"
+                      style={{ backgroundImage: `url('${imageUrl}')` }}
+                    />
+                  </div>
+                </SwiperSlide>
+              )
+            })}
             <Button
               variant="ghost"
               colorScheme="neutral"

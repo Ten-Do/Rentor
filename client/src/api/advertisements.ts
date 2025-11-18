@@ -1,4 +1,5 @@
 import type { Advertisement, AdvertisementListResponse } from '../types'
+import { API_BASE_URL } from '../utils/constants'
 import { $api } from './$api'
 
 export interface AdvertisementCreateData {
@@ -20,17 +21,17 @@ export interface AdvertisementUpdateData
 }
 
 export const getMyAdvertisements = async () =>
-  $api.get<AdvertisementListResponse>('/v1/advertisements/my')
+  $api.get<AdvertisementListResponse>('/advertisements/my')
 
 export const createAdvertisement = async (data: AdvertisementCreateData) =>
-  $api.post<Advertisement>('/v1/advertisements', data)
+  $api.post<Advertisement>('/advertisements', data)
 
 export const updateAdvertisement = async (
   id: string,
   data: AdvertisementUpdateData
-) => $api.put<Advertisement>(`/v1/advertisements/${id}`, data)
+) => $api.put<Advertisement>(`/advertisements/${id}`, data)
 
-export const IMAGES_FIELD_NAME = 'files' as const
+export const IMAGES_FIELD_NAME = 'images' as const
 
 export interface ImageUploadResponse {
   image_url: string
@@ -49,7 +50,7 @@ export const uploadAdvertisementImages = async (
   const formData = new FormData()
   files.forEach((file) => formData.append(IMAGES_FIELD_NAME, file))
 
-  const response = await fetch(`/v1/advertisements/${id}/images`, {
+  const response = await fetch(`${API_BASE_URL}/advertisements/${id}/images`, {
     method: 'POST',
     credentials: 'include',
     body: formData,
@@ -69,10 +70,13 @@ export const deleteAdvertisementImage = async (
   adId: string,
   imageId: string
 ): Promise<void> => {
-  const response = await fetch(`/v1/advertisements/${adId}/images/${imageId}`, {
-    method: 'DELETE',
-    credentials: 'include',
-  })
+  const response = await fetch(
+    `${API_BASE_URL}/advertisements/${adId}/images/${imageId}`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+    }
+  )
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))

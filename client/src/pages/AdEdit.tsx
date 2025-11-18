@@ -30,7 +30,7 @@ export const AdEdit = () => {
             address: String(data.get('address') || ''),
             status: String(data.get('status') || 'active') as any,
         })
-        const files = data.getAll('files') as File[]
+        const files = data.getAll('images') as File[]
         if (files.length > 0) {
             await uploadAdvertisementImages(advertisement.id, files)
         }

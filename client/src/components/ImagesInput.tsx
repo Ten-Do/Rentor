@@ -8,7 +8,7 @@ export interface ImagesInputProps {
 }
 
 export const ImagesInput = ({
-    name = 'files',
+    name = 'images',
     label = 'Images',
 }: ImagesInputProps) => {
     const inputRef = useRef<HTMLInputElement | null>(null)

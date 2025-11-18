@@ -20,11 +20,33 @@ export const ROOMS_OPTIONS = [
 ] as const
 
 export const SearchForm = () => {
-    const [searchParams] = useSearchParams()
+    const [searchParams, setSearchParams] = useSearchParams()
     const navigate = useNavigate()
 
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const formData = new FormData(e.currentTarget)
+        const params = new URLSearchParams()
+        
+        const keywords = formData.get('keywords')?.toString().trim()
+        const city = formData.get('city')?.toString().trim()
+        const type = formData.get('type')?.toString()
+        const rooms = formData.get('rooms')?.toString()
+        const minPrice = formData.get('minPrice')?.toString().trim()
+        const maxPrice = formData.get('maxPrice')?.toString().trim()
+
+        if (keywords) params.set('keywords', keywords)
+        if (city) params.set('city', city)
+        if (type) params.set('type', type)
+        if (rooms) params.set('rooms', rooms)
+        if (minPrice) params.set('minPrice', minPrice)
+        if (maxPrice) params.set('maxPrice', maxPrice)
+
+        setSearchParams(params)
+    }
+
     return (
-        <form method="get" className="mb-8 bg-gray-800 p-6 rounded-lg border border-gray-700">
+        <form onSubmit={handleSubmit} className="mb-8 bg-gray-800 p-6 rounded-lg border border-gray-700">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Input
                     name="keywords"

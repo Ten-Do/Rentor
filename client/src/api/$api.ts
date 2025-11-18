@@ -1,6 +1,6 @@
-export type Query = Record<string, string | number | boolean | undefined | null>
+import { API_BASE_URL } from '../utils/constants'
 
-const DATA_SOURCE_PATH = '/data.json' as const
+export type Query = Record<string, string | number | boolean | undefined | null>
 
 const buildPathWithQuery = (path: string, query?: Query): string => {
   if (!query) return path
@@ -13,26 +13,35 @@ const buildPathWithQuery = (path: string, query?: Query): string => {
   return qs ? `${path}?${qs}` : path
 }
 
-async function readDataJson(): Promise<Record<string, unknown>> {
-  const response = await fetch(DATA_SOURCE_PATH)
-  if (!response.ok) {
-    throw new Response('Failed to load API data', { status: 500 })
-  }
-  return response.json()
-}
-
-async function readFromMock<T>(path: string): Promise<T> {
-  const data = await readDataJson()
-  const value = (data as Record<string, unknown>)[path]
-  if (value === undefined) {
-    throw new Response('Resource not found', { status: 404 })
-  }
-  return value as T
+const buildUrl = (path: string): string => {
+  const baseUrl = API_BASE_URL.replace(/\/$/, '')
+  const cleanPath = path.startsWith('/') ? path : `/${path}`
+  return `${baseUrl}${cleanPath}`
 }
 
 async function get<T>(path: string, options?: { query?: Query }): Promise<T> {
   const finalPath = buildPathWithQuery(path, options?.query)
-  return readFromMock<T>(finalPath)
+  const url = buildUrl(finalPath)
+
+  const response = await fetch(url, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    const message =
+      (errorData as { error?: string; message?: string }).error ||
+      (errorData as { message?: string }).message ||
+      'Request failed'
+    throw new Error(message)
+  }
+
+  if (response.status === 204) return undefined as unknown as T
+  return (await response.json()) as T
 }
 
 async function requestJson<T>(
@@ -40,7 +49,9 @@ async function requestJson<T>(
   path: string,
   body?: unknown
 ): Promise<T> {
-  const response = await fetch(path, {
+  const url = buildUrl(path)
+
+  const response = await fetch(url, {
     method,
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -50,7 +61,9 @@ async function requestJson<T>(
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))
     const message =
-      (errorData as { message?: string }).message || 'Request failed'
+      (errorData as { error?: string; message?: string }).error ||
+      (errorData as { message?: string }).message ||
+      'Request failed'
     throw new Error(message)
   }
 

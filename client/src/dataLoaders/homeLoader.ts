@@ -1,5 +1,23 @@
-import type { AdvertisementListResponse, AdvertisementLite } from '../types'
+import type { AdvertisementLite } from '../types'
 import { $api } from '../api'
+
+interface BackendAdPreview {
+  id: number
+  title: string
+  city: string
+  price: number
+  type: string
+  rooms: string
+  square: number
+  imageUrl: { imageId: number; imageUrl: string } | null
+}
+
+interface BackendResponse {
+  items: BackendAdPreview[]
+  total: number
+  page: number
+  limit: number
+}
 
 export interface HomeLoaderData {
   ads: AdvertisementLite[]
@@ -10,9 +28,19 @@ export const homeLoader = async ({
 }: {
   request: Request
 }): Promise<HomeLoaderData> => {
-  const responseData =
-    await $api.get<AdvertisementListResponse>('/v1/advertisements')
-  let ads = responseData?.data || []
+  const response = await $api
+    .get<BackendResponse>('/advertisements')
+    .catch(() => ({ items: [] }) as unknown as BackendResponse)
+
+  let ads: AdvertisementLite[] = (response?.items || []).map((item) => ({
+    id: String(item.id),
+    title: item.title,
+    price: item.price,
+    type: item.type as AdvertisementLite['type'],
+    rooms: item.rooms as AdvertisementLite['rooms'],
+    city: item.city,
+    image_url: item.imageUrl?.imageUrl || null,
+  }))
 
   const url = new URL(request.url)
   const keywords = url.searchParams.get('keywords')

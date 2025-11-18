@@ -2,10 +2,22 @@ import { Link } from '../../components/Link'
 import { Button } from '../../components/Button'
 import { useAuth } from '../../hooks/data/useAuth'
 import { useModal } from '../../contexts/ModalContext'
+import { useRevalidator } from 'react-router-dom'
+import { logoutAction } from '../../api/auth'
 
 export const Header = () => {
   const { isAuth } = useAuth()
   const { open } = useModal()
+  const revalidator = useRevalidator()
+
+  const handleLogout = async () => {
+    try {
+      await logoutAction()
+      revalidator.revalidate()
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-gray-900 border-b border-gray-800">
@@ -26,6 +38,9 @@ export const Header = () => {
               <Link to="/profile" size="md" colorScheme="primary">
                 Profile
               </Link>
+              <Button onClick={handleLogout} size="md" variant="outline">
+                Logout
+              </Button>
             </div>
           ) : (
             <Button onClick={() => open('login')} size="md">

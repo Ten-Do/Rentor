@@ -21,7 +21,7 @@ export interface Advertisement extends AdvertisementLite {
   longitude: number | null
   square: number | null
   image_urls: string[]
-  images?: { id: string; url: string }[]
+  images: { id: string; url: string }[]
   landlord_name: string
   landlord_email: string
   landlord_phone: string | null

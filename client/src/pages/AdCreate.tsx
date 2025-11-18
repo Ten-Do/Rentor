@@ -22,7 +22,7 @@ export const AdCreate = () => {
             address: String(data.get('address') || ''),
         })
         if (created?.id) {
-            const files = data.getAll('files').filter((f): f is File => f instanceof File && f.size > 0)
+            const files = data.getAll('images').filter((f): f is File => f instanceof File && f.size > 0)
             if (files.length > 0) {
                 await uploadAdvertisementImages(created.id, files)
             }

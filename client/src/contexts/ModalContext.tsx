@@ -20,7 +20,10 @@ const initModals: Record<ModalName, any> = {
   landlord: null,
 }
 
-const ModalContext = createContext<ModalContextType | undefined>(undefined)
+const ModalContext = createContext<ModalContextType>({
+  open: () => { },
+  close: () => { },
+})
 
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
   const [modals, setModals] = useState<Record<ModalName, any>>(initModals)

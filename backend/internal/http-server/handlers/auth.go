@@ -187,8 +187,20 @@ func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 
 // Logout clears refresh token
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	// Clear refresh_token
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+		Expires:  time.Unix(0, 0),
+	})
+
+	// Clear access_token
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,

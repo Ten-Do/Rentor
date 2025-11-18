@@ -6,6 +6,6 @@ export interface AuthLoaderData {
 }
 
 export const authLoader = async (): Promise<AuthLoaderData> => {
-  const user = await $api.get<User>('/v1/user/profile').catch(() => null)
+  const user = await $api.get<User>('/user/profile').catch(() => null)
   return { user }
 }

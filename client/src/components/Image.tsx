@@ -1,5 +1,6 @@
 import { PhotoIcon } from '@heroicons/react/24/outline'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { API_BASE_URL } from '../utils/constants'
 
 export interface ImageProps
   extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'onError' | 'src'> {
@@ -7,16 +8,28 @@ export interface ImageProps
   alt: string
 }
 
+const getImageUrl = (src: string | null): string | null => {
+  if (!src) return null
+  if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('blob:')) return src
+  const cleanSrc = src.startsWith('/') ? src : `/${src}`
+  return `${API_BASE_URL}${cleanSrc}`
+}
+
 export const Image = ({ src, className = '', ...props }: ImageProps) => {
-  const [imgSrc, setImgSrc] = useState<string | null>(src)
+  const [imgSrc, setImgSrc] = useState<string | null>(getImageUrl(src))
+  const [hasError, setHasError] = useState(false)
+
+  useEffect(() => {
+    setImgSrc(getImageUrl(src))
+    setHasError(false)
+  }, [src])
 
   const handleError = () => {
-    if (imgSrc) {
-      setImgSrc(null)
-    }
+    setHasError(true)
+    setImgSrc(null)
   }
 
-  if (!imgSrc) {
+  if (!imgSrc || hasError) {
     return (
       <div
         className={`flex items-center justify-center bg-gray-800 text-gray-500 ${className}`}

@@ -45,7 +45,7 @@ export const AdFormFields = ({
             )}
 
             {/* New images uploader (used in both create and edit) */}
-            <ImagesInput name="files" />
+            <ImagesInput name="images" />
         </>
     )
 }

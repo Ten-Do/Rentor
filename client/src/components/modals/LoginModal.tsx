@@ -1,4 +1,5 @@
 import { useActionState, useState } from 'react'
+import { useRevalidator } from 'react-router-dom'
 import { Modal } from '../Modal'
 import { Button } from '../Button'
 import { Input } from '../Input'
@@ -12,7 +13,9 @@ type OtpActionState = { otpError?: string } | null
 
 export const LoginModal = () => {
     const { close } = useModal()
+    const revalidator = useRevalidator()
     const [step, setStep] = useState<LoginStep>('email')
+    const [email, setEmail] = useState<string>('')
 
     const [emailActionState, sendOtp] = useActionState<EmailActionState, FormData>(
         async (_prev, formData) => {
@@ -20,6 +23,7 @@ export const LoginModal = () => {
 
             try {
                 await sendOtpAction(email)
+                setEmail(email)
                 setStep('otp')
                 return null
             } catch (e) {
@@ -32,12 +36,12 @@ export const LoginModal = () => {
 
     const [otpActionState, verifyOtp] = useActionState<OtpActionState, FormData>(
         async (_prev, formData) => {
-            const email = String(formData.get('email') || '')
             const otp_code = String(formData.get('otp_code') || '')
 
             try {
                 await verifyOtpAction(email, otp_code)
                 close('login')
+                revalidator.revalidate()
                 return null
             } catch (e) {
                 const message = e instanceof Error ? e.message : 'Invalid OTP code'
@@ -49,6 +53,7 @@ export const LoginModal = () => {
 
     const handleBackToEmail = () => {
         setStep('email')
+        setEmail('')
     }
 
     return (
@@ -69,6 +74,8 @@ export const LoginModal = () => {
                         id="email"
                         name="email"
                         type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                         readOnly={step !== 'email'}
                         error={step === 'email' ? emailActionState?.emailError ?? null : null}
