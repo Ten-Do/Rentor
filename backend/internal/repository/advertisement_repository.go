@@ -198,21 +198,25 @@ func (r *AdRepository) GetAdvertisementsPaged(filters *models.AdFilters) (*model
 		args = append(args, filters.MaxPrice)
 	}
 	if filters.Type != nil {
-		where = append(where, "type = ?")
+		where = append(where, "type LIKE ?")
 		args = append(args, filters.Type)
 	}
 	if filters.Rooms != nil {
-		where = append(where, "rooms = ?")
+		where = append(where, "rooms LIKE ?")
 		args = append(args, filters.Rooms)
 	}
 	if filters.City != nil {
-		where = append(where, "city = ?")
+		where = append(where, "city LIKE ?")
 		args = append(args, filters.City)
 	}
 	if filters.Keywords != nil {
 		where = append(where, "(title LIKE ? OR description LIKE ?)")
 		kw := "%" + *filters.Keywords + "%"
 		args = append(args, kw, kw)
+	}
+	if filters.UserID != nil {
+		where = append(where, "user_id = ?")
+		args = append(args, *filters.UserID)
 	}
 
 	query := fmt.Sprintf(`
