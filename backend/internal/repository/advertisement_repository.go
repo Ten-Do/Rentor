@@ -199,15 +199,15 @@ func (r *AdRepository) GetAdvertisementsPaged(filters *models.AdFilters) (*model
 	}
 	if filters.Type != nil {
 		where = append(where, "type LIKE ?")
-		args = append(args, filters.Type)
+		args = append(args, "%"+*filters.Type+"%")
 	}
 	if filters.Rooms != nil {
 		where = append(where, "rooms LIKE ?")
-		args = append(args, filters.Rooms)
+		args = append(args, "%"+*filters.Rooms+"%")
 	}
 	if filters.City != nil {
 		where = append(where, "city LIKE ?")
-		args = append(args, filters.City)
+		args = append(args, "%"+*filters.City+"%")
 	}
 	if filters.Keywords != nil {
 		where = append(where, "(title LIKE ? OR description LIKE ?)")
